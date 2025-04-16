@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class ProposalResponse {
-    private Long id;
+    private Long proposalId;
     private int jobId;
     private UUID freelancerId;
     private UUID clientId;

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,7 +24,7 @@ public class Proposal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "proposal_id")
-    private Long id;
+    private Long proposalId;
 
     @Column(name = "job_id", nullable = false)
     private int jobId;
@@ -42,9 +44,11 @@ public class Proposal {
     @Column(name = "cover_letter", columnDefinition = "text")
     private String coverLetter;
 
+    @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -52,14 +56,4 @@ public class Proposal {
     @JsonManagedReference
     private List<ProposalAttachment> attachments;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

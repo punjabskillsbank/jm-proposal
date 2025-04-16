@@ -19,9 +19,9 @@ public class ProposalServiceImpl implements ProposalService {
 
     @Override
     @Transactional
-    public Proposal submitProposal(ProposalSubmissionRequest dto) {
-        Proposal proposal = modelMapper.map(dto, Proposal.class);
-        proposal.setId(null);
+    public Proposal submitProposal(ProposalSubmissionRequest proposalRequest) {
+        Proposal proposal = modelMapper.map(proposalRequest, Proposal.class);
+        proposal.setProposalId(null);
         return proposalRepository.save(proposal);
     }
 }

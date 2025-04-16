@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +21,7 @@ public class ProposalAttachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attachment_id")
-    private Long id;
+    private Long attachmentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proposal_id", nullable = false)
@@ -31,20 +34,11 @@ public class ProposalAttachment {
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
+    @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }
