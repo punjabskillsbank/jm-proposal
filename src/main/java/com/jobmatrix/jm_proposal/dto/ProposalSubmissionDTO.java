@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class ProposalSubmissionRequest {
+public class ProposalSubmissionDTO {
     @NotNull(message = "Job ID is required")
     private int jobId;
 
@@ -28,5 +28,4 @@ public class ProposalSubmissionRequest {
     @NotBlank(message = "Cover letter is required")
     private String coverLetter;
 
-    private List<ProposalAttachmentDto> attachments;
 }

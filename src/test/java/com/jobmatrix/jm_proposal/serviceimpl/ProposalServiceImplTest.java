@@ -1,7 +1,7 @@
 package com.jobmatrix.jm_proposal.serviceimpl;
 
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionRequest;
-import com.jobmatrix.jm_proposal.entity.Proposal;
+import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
+import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.repository.ProposalRepository;
 import com.jobmatrix.jm_proposal.serviceimply.ProposalServiceImpl;
 import com.jobmatrix.jm_proposal.test_utils.factory.ProposalTestDataFactory;
@@ -30,9 +30,9 @@ class ProposalServiceImplTest {
     @InjectMocks
     private ProposalServiceImpl proposalService;
 
-    private ProposalSubmissionRequest requestDto;
-    private Proposal mappedProposal;
-    private Proposal savedProposal;
+    private ProposalSubmissionDTO requestDto;
+    private ProposalSubmission mappedProposal;
+    private ProposalSubmission savedProposal;
 
     @BeforeEach
     void setUp() {
@@ -47,19 +47,19 @@ class ProposalServiceImplTest {
     @Test
     void submitProposal_shouldSaveAndReturnProposal() {
         // given
-        when(modelMapper.map(requestDto, Proposal.class)).thenReturn(mappedProposal);
+        when(modelMapper.map(requestDto, ProposalSubmission.class)).thenReturn(mappedProposal);
         when(proposalRepository.save(mappedProposal)).thenReturn(savedProposal);
 
         // when
-        Proposal result = proposalService.submitProposal(requestDto);
+        ProposalSubmission result = proposalService.submitProposal(requestDto);
 
         // then
         assertNotNull(result);
-        assertEquals(savedProposal.getId(), result.getId());
+        assertEquals(savedProposal.getProposalId(), result.getProposalId());
         assertEquals(savedProposal.getJobId(), result.getJobId());
         assertEquals(savedProposal.getCoverLetter(), result.getCoverLetter());
 
-        verify(modelMapper).map(requestDto, Proposal.class);
+        verify(modelMapper).map(requestDto, ProposalSubmission.class);
         verify(proposalRepository).save(mappedProposal);
     }
 }

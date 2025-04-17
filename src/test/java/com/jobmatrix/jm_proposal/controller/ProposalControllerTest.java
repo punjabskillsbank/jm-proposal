@@ -1,8 +1,8 @@
 package com.jobmatrix.jm_proposal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionRequest;
-import com.jobmatrix.jm_proposal.entity.Proposal;
+import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
+import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
 import com.jobmatrix.jm_proposal.test_utils.factory.ProposalTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +32,8 @@ class ProposalControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private ProposalSubmissionRequest requestDto;
-    private Proposal savedProposal;
+    private ProposalSubmissionDTO requestDto;
+    private ProposalSubmission savedProposal;
 
     @BeforeEach
     void setup() {
@@ -45,14 +45,14 @@ class ProposalControllerTest {
 
     @Test
     void submitProposal_returnsCreatedProposal() throws Exception {
-        when(proposalService.submitProposal(ArgumentMatchers.any(ProposalSubmissionRequest.class)))
+        when(proposalService.submitProposal(ArgumentMatchers.any(ProposalSubmissionDTO.class)))
                 .thenReturn(savedProposal);
 
         mockMvc.perform(post("/api/v1/proposals/create_proposal")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(savedProposal.getId()))
+                .andExpect(jsonPath("$.proposalId").value(savedProposal.getProposalId()))
                 .andExpect(jsonPath("$.jobId").value(savedProposal.getJobId()))
                 .andExpect(jsonPath("$.coverLetter").value(savedProposal.getCoverLetter()));
     }

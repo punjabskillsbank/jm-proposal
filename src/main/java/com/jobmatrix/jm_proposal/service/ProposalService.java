@@ -1,8 +1,8 @@
 package com.jobmatrix.jm_proposal.service;
 
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionRequest;
-import com.jobmatrix.jm_proposal.entity.Proposal;
+import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
+import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 
 public interface ProposalService {
-    Proposal submitProposal(ProposalSubmissionRequest proposalRequest);
+    ProposalSubmission submitProposal(ProposalSubmissionDTO proposalRequest);
 }

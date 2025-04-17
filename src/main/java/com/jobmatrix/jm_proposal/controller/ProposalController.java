@@ -1,8 +1,7 @@
 package com.jobmatrix.jm_proposal.controller;
 
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionRequest;
-import com.jobmatrix.jm_proposal.dto.ProposalResponse;
-import com.jobmatrix.jm_proposal.entity.Proposal;
+import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
+import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,9 +17,9 @@ public class ProposalController {
     private final ProposalService proposalService;
 
     @PostMapping("/create_proposal")
-    public ResponseEntity<Proposal> submitProposal(
-            @Valid @RequestBody ProposalSubmissionRequest proposalRequest) {
-        Proposal savedProposal = proposalService.submitProposal(proposalRequest);
+    public ResponseEntity<ProposalSubmission> submitProposal(
+            @Valid @RequestBody ProposalSubmissionDTO proposalRequest) {
+        ProposalSubmission savedProposal = proposalService.submitProposal(proposalRequest);
         return new ResponseEntity<>(savedProposal, HttpStatus.CREATED);
     }
 }
