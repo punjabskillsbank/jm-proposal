@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -36,15 +37,17 @@ class ProposalServiceImplTest {
     @InjectMocks
     private ProposalServiceImpl proposalService;
 
+    private ModelMapper modelMapper;
+
     @BeforeEach
     void setUp() {
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
         
+        modelMapper = new ModelMapper();
+        
         ProposalSubmissionDTO requestDto = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
         ProposalSubmission savedProposal = ProposalTestDataFactory.createProposalEntity(1L, freelancerId, clientId);
-        requestDto = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
-        savedProposal = ProposalTestDataFactory.createProposalEntity(1L, freelancerId, clientId);
     }
 
     @Test
@@ -58,13 +61,8 @@ class ProposalServiceImplTest {
                 .coverLetter("Test cover letter")
                 .build();
 
-        ProposalSubmission savedProposal = new ProposalSubmission();
+        ProposalSubmission savedProposal = modelMapper.map(request, ProposalSubmission.class);
         savedProposal.setProposalId(1L);
-        savedProposal.setJobPostingId(request.getJobPostingId());
-        savedProposal.setFreelancerId(request.getFreelancerId());
-        savedProposal.setClientId(request.getClientId());
-        savedProposal.setProposedBidAmount(request.getProposedBidAmount());
-        savedProposal.setCoverLetter(request.getCoverLetter());
 
         when(proposalRepository.save(any(ProposalSubmission.class))).thenReturn(savedProposal);
 
@@ -87,10 +85,13 @@ class ProposalServiceImplTest {
     void getProposalsByFreelancerId_whenProposalsExist_shouldReturnProposals() {
         // given
         UUID freelancerId = UUID.randomUUID();
-        List<ProposalSubmission> expectedProposals = List.of(
-                ProposalTestDataFactory.createProposalEntity(1L, freelancerId, UUID.randomUUID()),
-                ProposalTestDataFactory.createProposalEntity(2L, freelancerId, UUID.randomUUID())
+        List<ProposalSubmissionDTO> expectedDtoList = List.of(
+                ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, UUID.randomUUID()),
+                ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, UUID.randomUUID())
         );
+        List<ProposalSubmission> expectedProposals = expectedDtoList.stream()
+                .map(dto -> modelMapper.map(dto, ProposalSubmission.class))
+                .toList();
 
         when(freelancerRepository.findById(freelancerId))
                 .thenReturn(Optional.of(new Freelancer()));
@@ -104,7 +105,8 @@ class ProposalServiceImplTest {
         // then
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals(expectedProposals, result);
+        assertEquals(expectedProposals.size(), result.size());
+        assertTrue(expectedProposals.containsAll(result) && result.containsAll(expectedProposals));
         verify(freelancerRepository).findById(freelancerId);
         verify(proposalRepository).findByFreelancerId(freelancerId);
     }
@@ -118,8 +120,11 @@ class ProposalServiceImplTest {
         when(freelancerRepository.findById(freelancerId))
                 .thenReturn(Optional.of(new Freelancer()));
 
+        List<ProposalSubmissionDTO> emptyDtoList = Collections.emptyList();
         when(proposalRepository.findByFreelancerId(freelancerId))
-                .thenReturn(Collections.emptyList());
+                .thenReturn(emptyDtoList.stream()
+                        .map(dto -> modelMapper.map(dto, ProposalSubmission.class))
+                        .toList());
 
         // when
         List<ProposalSubmission> result = proposalService.getProposalsByFreelancerId(freelancerId);
