@@ -23,4 +23,9 @@ public class GlobalExceptionHandler {
         }
         return ResponseEntity.badRequest().body(errors); // Returns HTTP 400 Bad Request
     }
+
+    @ExceptionHandler(FreelancerNotFoundException.class)
+    public ResponseEntity<String> handleFreelancerNotFoundException(FreelancerNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

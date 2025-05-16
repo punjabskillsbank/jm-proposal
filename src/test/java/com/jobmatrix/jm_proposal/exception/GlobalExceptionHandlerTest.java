@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,5 +36,20 @@ class GlobalExceptionHandlerTest {
         assertEquals(2, errorMap.size());
         assertEquals("Cover letter is required", errorMap.get("coverLetter"));
         assertEquals("Bid amount must be positive", errorMap.get("proposedBidAmount"));
+    }
+
+    @Test
+    void handleFreelancerNotFoundException_shouldReturnNotFoundMessage() {
+        // Arrange
+        UUID freelancerId = UUID.randomUUID();
+        FreelancerNotFoundException exception = new FreelancerNotFoundException(freelancerId);
+        String expectedMessage = "Freelancer not found with Freelancer ID: " + freelancerId;
+
+        // Act
+        ResponseEntity<String> response = exceptionHandler.handleFreelancerNotFoundException(exception);
+
+        // Assert
+        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(expectedMessage, response.getBody());
     }
 }

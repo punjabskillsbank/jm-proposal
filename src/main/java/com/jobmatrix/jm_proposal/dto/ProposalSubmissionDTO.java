@@ -12,8 +12,9 @@ import java.util.UUID;
 @Data
 @Builder
 public class ProposalSubmissionDTO {
-    @NotNull(message = "Job ID is required")
-    private int jobId;
+
+    @NotNull(message = "Job-Posting ID is required")
+    private int jobPostingId;
 
     @NotNull(message = "Freelancer ID is required")
     private UUID freelancerId;
