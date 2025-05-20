@@ -1,8 +1,9 @@
 package com.jobmatrix.jm_proposal.serviceimpl;
 
+import com.common.enums.ProposalStatus;
+import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
-import com.jobmatrix.jm_proposal.exception.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.repository.FreelancerRepository;
 import com.jobmatrix.jm_proposal.repository.ProposalRepository;
 import com.jobmatrix.jm_proposal.service.ProposalService;
@@ -11,8 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,13 +39,21 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
     @Override
-    public List<ProposalSubmission> getProposalsByFreelancerId(UUID freelancerId) {
-        // Check if the freelancer exists
-        if (freelancerRepository.findById(freelancerId).isEmpty()) {
+    public Map<ProposalStatus, List<ProposalSubmissionDTO>> getProposalsByStatus(UUID freelancerId, List<ProposalStatus> statusList) {
+        if (!freelancerRepository.existsById(freelancerId)) {
             throw new FreelancerNotFoundException(freelancerId);
         }
-        List<ProposalSubmission> proposals = proposalRepository.findByFreelancerId(freelancerId);
-        // Fetch proposals for the freelancer
-        return proposals;
+        Map<ProposalStatus, List<ProposalSubmissionDTO>> result = new HashMap<>();
+        for (ProposalStatus status : statusList) {
+            List<ProposalSubmission> jobPostings = proposalRepository.findByFreelancerIdAndProposalStatus(freelancerId, status);
+            List<ProposalSubmissionDTO> dtoList = new ArrayList<>();
+            for (ProposalSubmission jobPosting : jobPostings) {
+                ProposalSubmissionDTO jobPostingDTO = modelMapper.map(jobPosting, ProposalSubmissionDTO.class);
+                dtoList.add(jobPostingDTO);
+            }
+            result.put(status, dtoList);
+        }
+        return result;
     }
+
 }

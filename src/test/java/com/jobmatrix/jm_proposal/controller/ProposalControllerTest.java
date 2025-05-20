@@ -7,17 +7,23 @@ import com.jobmatrix.jm_proposal.service.ProposalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.jobmatrix.jm_proposal.exception.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.test_utils.factory.ProposalTestDataFactory;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import com.common.enums.ProposalStatus;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ProposalController.class)
 class ProposalControllerTest {
+    private static final int JOB_POSTING_ID = 101;
 
     @Autowired
     private MockMvc mockMvc;
@@ -76,25 +83,31 @@ class ProposalControllerTest {
     }
 
     @Test
-    void testGetProposalsByFreelancerId() throws Exception {
-        // given
+    void getProposalsByStatus() throws Exception {
         UUID freelancerId = UUID.randomUUID();
-        // Create test proposals
-        ProposalSubmission proposal1 = ProposalTestDataFactory.createProposalEntity(1L, freelancerId, UUID.randomUUID());
-        ProposalSubmission proposal2 = ProposalTestDataFactory.createProposalEntity(2L, freelancerId, UUID.randomUUID());
-        List<ProposalSubmission> proposals = List.of(proposal1, proposal2);
         
-        when(proposalService.getProposalsByFreelancerId(freelancerId)).thenReturn(proposals);
-        
-        // when/then
-        mockMvc.perform(get("/api/v1/proposals/freelancer/" + freelancerId)
-                        .contentType(MediaType.APPLICATION_JSON))
+        ProposalSubmissionDTO draftProposalDTO = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, freelancerId);
+        ProposalSubmissionDTO openProposalDTO = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, freelancerId);
+        openProposalDTO.setProposalStatus(ProposalStatus.ACCEPTED);
+
+        Map<ProposalStatus, List<ProposalSubmissionDTO>> mockResult = Map.of(
+            ProposalStatus.SUBMITTED, List.of(draftProposalDTO),
+            ProposalStatus.ACCEPTED, List.of(openProposalDTO)
+        );
+
+        when(proposalService.getProposalsByStatus(
+                Mockito.eq(freelancerId),
+                Mockito.argThat(list ->
+                        list.containsAll(Arrays.asList(ProposalStatus.SUBMITTED, ProposalStatus.ACCEPTED))
+                )
+        )).thenReturn(mockResult);
+
+        mockMvc.perform(get("/api/v1/proposals/" + freelancerId + "/statuses/SUBMITTED,ACCEPTED"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].proposalId").value(1))
-                .andExpect(jsonPath("$[1].proposalId").value(2));
-                
-        verify(proposalService).getProposalsByFreelancerId(freelancerId);
+                .andExpect(jsonPath("$.SUBMITTED[0].jobPostingId").value(JOB_POSTING_ID))
+                .andExpect(jsonPath("$.ACCEPTED[0].jobPostingId").value(JOB_POSTING_ID));
     }
+
+
 
 }

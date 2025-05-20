@@ -1,6 +1,7 @@
 package com.jobmatrix.jm_proposal.entity;
 
 
+import com.common.enums.ProposalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import com.jobmatrix.jm_proposal.enums.ProposalStatus;
+
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Entity
@@ -38,11 +39,11 @@ public class ProposalSubmission {
     private UUID clientId;
 
     @Column(name = "proposed_bid_amount", nullable = false)
-    private BigDecimal proposedBidAmount;
+    private int proposedBidAmount;
 
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "proposal_status")
+    @Column(name = "proposal_status", columnDefinition = "proposal_status")
     private ProposalStatus proposalStatus;
 
     @Column(name = "cover_letter", columnDefinition = "text")

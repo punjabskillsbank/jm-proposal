@@ -1,5 +1,6 @@
 package com.jobmatrix.jm_proposal.exception;
 
+import com.common.exceptionHandling.FreelancerNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

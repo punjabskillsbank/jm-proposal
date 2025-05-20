@@ -1,5 +1,6 @@
 package com.jobmatrix.jm_proposal.exception;
 
+import com.common.exceptionHandling.FreelancerNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -7,10 +8,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
 
 class GlobalExceptionHandlerTest {
 
@@ -52,4 +58,5 @@ class GlobalExceptionHandlerTest {
         assertEquals(404, response.getStatusCodeValue());
         assertEquals(expectedMessage, response.getBody());
     }
+
 }

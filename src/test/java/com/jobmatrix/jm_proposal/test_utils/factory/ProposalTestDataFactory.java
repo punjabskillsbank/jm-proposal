@@ -2,6 +2,7 @@ package com.jobmatrix.jm_proposal.test_utils.factory;
 
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
+import com.common.enums.ProposalStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 public class ProposalTestDataFactory {
     private static final int JOB_POSTING_ID = 101;
-    private static final BigDecimal PROPOSED_BID_AMOUNT = BigDecimal.valueOf(5000);
+    private static final int PROPOSED_BID_AMOUNT = 5000;
     private static final String COVER_LETTER = "Please consider my proposal for this job. I have relevant experience.";
 
     public static ProposalSubmissionDTO createProposalSubmissionRequest(UUID freelancerId, UUID clientId) {
@@ -19,6 +20,7 @@ public class ProposalTestDataFactory {
                 .clientId(clientId)
                 .proposedBidAmount(PROPOSED_BID_AMOUNT)
                 .coverLetter(COVER_LETTER)
+                .proposalStatus(ProposalStatus.SUBMITTED)
                 .build();
     }
 
@@ -30,6 +32,7 @@ public class ProposalTestDataFactory {
                 .clientId(clientId)
                 .proposedBidAmount(PROPOSED_BID_AMOUNT)
                 .coverLetter(COVER_LETTER)
+                .proposalStatus(ProposalStatus.SUBMITTED)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -41,7 +44,7 @@ public class ProposalTestDataFactory {
                 .jobPostingId(1)
                 .freelancerId(freelancerId)
                 .clientId(clientId)
-                .proposedBidAmount(BigDecimal.valueOf(1000.0))
+                .proposedBidAmount(1000)
                 .coverLetter("Test cover letter")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

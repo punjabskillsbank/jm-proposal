@@ -1,5 +1,8 @@
 package com.jobmatrix.jm_proposal.controller;
 
+import com.common.enums.ProposalStatus;
+import com.common.util.EnumUtils;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -25,10 +29,13 @@ public class ProposalController {
         return new ResponseEntity<>(savedProposal, HttpStatus.CREATED);
     }
 
-    @GetMapping("/freelancer/{freelancerId}")
-    public ResponseEntity<List<ProposalSubmission>> getProposalsByFreelancerId(
-            @PathVariable UUID freelancerId) {
-        List<ProposalSubmission> proposals = proposalService.getProposalsByFreelancerId(freelancerId);
+    @GetMapping("/{freelancerId}/statuses/{statuses}")
+    public ResponseEntity<Map<ProposalStatus, List<ProposalSubmissionDTO>>> getProposalsByFreelancerId(
+            @PathVariable UUID freelancerId,
+            @PathVariable String statuses) {
+
+        List<ProposalStatus> statusList = EnumUtils.parseEnumList(statuses, ProposalStatus.class);
+        Map<ProposalStatus, List<ProposalSubmissionDTO>> proposals = proposalService.getProposalsByStatus(freelancerId, statusList);
         return ResponseEntity.ok(proposals);
     }
 }

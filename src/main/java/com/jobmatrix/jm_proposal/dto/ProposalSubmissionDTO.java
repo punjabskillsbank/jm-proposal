@@ -1,19 +1,24 @@
 package com.jobmatrix.jm_proposal.dto;
 
+import com.common.enums.ProposalStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class ProposalSubmissionDTO {
 
-    @NotNull(message = "Job-Posting ID is required")
+    @NotNull(message = "Job Posting ID is required")
     private int jobPostingId;
 
     @NotNull(message = "Freelancer ID is required")
@@ -24,7 +29,10 @@ public class ProposalSubmissionDTO {
 
     @NotNull(message = "Proposed bid amount is required")
     @Positive(message = "Bid amount must be positive")
-    private BigDecimal proposedBidAmount;
+    private int proposedBidAmount;
+
+    @NotNull(message = "Proposal status is required")
+    private ProposalStatus proposalStatus;
 
     @NotBlank(message = "Cover letter is required")
     private String coverLetter;
