@@ -144,6 +144,43 @@ class ProposalServiceImplTest {
     }
 
     @Test
+    void getProposalsByStatuses_EmptyResults() {
+        // given
+        UUID freelancerId = UUID.randomUUID();
+        List<ProposalStatus> statuses = Arrays.asList(ProposalStatus.SUBMITTED, ProposalStatus.ACCEPTED);
+        
+        when(freelancerRepository.existsById(freelancerId)).thenReturn(true);
+
+        // Mock repository calls to return empty lists
+        for (ProposalStatus status : statuses) {
+            when(proposalRepository.findByFreelancerIdAndProposalStatus(freelancerId, status))
+                .thenReturn(List.of());
+        }
+
+        // when
+        Map<ProposalStatus, List<ProposalSubmissionDTO>> result = 
+            proposalService.getProposalsByStatus(freelancerId, statuses);
+
+        // then
+        assertNotNull(result);
+        assertTrue(result.containsKey(ProposalStatus.SUBMITTED));
+        assertTrue(result.containsKey(ProposalStatus.ACCEPTED));
+        
+        // Verify each status has empty list
+        for (ProposalStatus status : statuses) {
+            List<ProposalSubmissionDTO> proposals = result.get(status);
+            assertNotNull(proposals);
+            assertTrue(proposals.isEmpty());
+        }
+        
+        // Verify repository interactions
+        verify(freelancerRepository).existsById(freelancerId);
+        for (ProposalStatus status : statuses) {
+            verify(proposalRepository).findByFreelancerIdAndProposalStatus(freelancerId, status);
+        }
+    }
+
+    @Test
     void getProposalsByStatuses_ThrowsFreelancerNotFoundException() {
         // given
         UUID freelancerId = UUID.randomUUID();
