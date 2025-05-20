@@ -1,6 +1,7 @@
 package com.jobmatrix.jm_proposal.exception;
 
 import com.common.exceptionHandling.FreelancerNotFoundException;
+import com.common.exceptionHandling.InvalidEnumValueException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -28,5 +29,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FreelancerNotFoundException.class)
     public ResponseEntity<String> handleFreelancerNotFoundException(FreelancerNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidEnumValueException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidEnumValueException(InvalidEnumValueException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+        errorResponse.put("message", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

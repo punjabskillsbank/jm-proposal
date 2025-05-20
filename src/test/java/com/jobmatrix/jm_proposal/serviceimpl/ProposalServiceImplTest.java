@@ -20,10 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,18 +35,16 @@ class ProposalServiceImplTest {
     @Mock
     private FreelancerRepository freelancerRepository;
 
-    @Mock
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper = new ModelMapper();
 
-    @InjectMocks
     private ProposalServiceImpl proposalService;
 
     @BeforeEach
     void setUp() {
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
-        // No need to initialize modelMapper since it's already mocked
-        modelMapper = new ModelMapper();
+
+        proposalService = new ProposalServiceImpl(proposalRepository, freelancerRepository, modelMapper);
 
         ProposalSubmissionDTO requestDto = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
         ProposalSubmission savedProposal = ProposalTestDataFactory.createProposalEntity(1L, freelancerId, clientId);

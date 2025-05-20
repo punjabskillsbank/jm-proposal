@@ -1,12 +1,16 @@
 package com.jobmatrix.jm_proposal.exception;
 
 import com.common.exceptionHandling.FreelancerNotFoundException;
+import com.common.exceptionHandling.InvalidEnumValueException;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
 import java.util.Map;
