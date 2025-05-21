@@ -1,16 +1,21 @@
 package com.jobmatrix.jm_proposal.entity;
 
+
+import com.common.enums.ProposalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Entity
 @Table(name = "proposals")
@@ -24,8 +29,8 @@ public class ProposalSubmission {
     @Column(name = "proposal_id")
     private Long proposalId;
 
-    @Column(name = "job_id", nullable = false)
-    private int jobId;
+    @Column(name = "job_posting_id", nullable = false)
+    private int jobPostingId;
 
     @Column(name = "freelancer_id", nullable = false)
     private UUID freelancerId;
@@ -34,10 +39,12 @@ public class ProposalSubmission {
     private UUID clientId;
 
     @Column(name = "proposed_bid_amount", nullable = false)
-    private BigDecimal proposedBidAmount;
+    private int proposedBidAmount;
 
-    @Column(name = "proposal_status")
-    private String proposalStatus;
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "proposal_status", columnDefinition = "proposal_status")
+    private ProposalStatus proposalStatus;
 
     @Column(name = "cover_letter", columnDefinition = "text")
     private String coverLetter;
