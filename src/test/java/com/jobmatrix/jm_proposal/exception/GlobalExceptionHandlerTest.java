@@ -1,26 +1,16 @@
 package com.jobmatrix.jm_proposal.exception;
 
 import com.common.exceptionHandling.FreelancerNotFoundException;
-import com.common.exceptionHandling.InvalidEnumValueException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.never;
 
 class GlobalExceptionHandlerTest {
 
@@ -53,7 +43,7 @@ class GlobalExceptionHandlerTest {
         // Arrange
         UUID freelancerId = UUID.randomUUID();
         FreelancerNotFoundException exception = new FreelancerNotFoundException(freelancerId);
-        String expectedMessage = "Freelancer not found with Freelancer ID: " + freelancerId;
+        String expectedMessage = "Freelancer not found with ID: " + freelancerId;
 
         // Act
         ResponseEntity<String> response = exceptionHandler.handleFreelancerNotFoundException(exception);
@@ -62,5 +52,32 @@ class GlobalExceptionHandlerTest {
         assertEquals(404, response.getStatusCodeValue());
         assertEquals(expectedMessage, response.getBody());
     }
+
+    @Test
+    void handleProposalNotFoundException_shouldReturnNotFoundResponse() {
+        // Arrange
+        String errorMessage = "Proposal not found for job posting ID: 123";
+        ProposalNotFoundException exception = new ProposalNotFoundException(errorMessage);
+
+        // Act
+        ResponseEntity<Object> response = exceptionHandler.handleProposalNotFoundException(exception);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        Object responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertTrue(responseBody instanceof Map);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> errorMap = (Map<String, Object>) responseBody;
+
+        assertEquals(404, errorMap.get("status"));
+        assertEquals("Not Found", errorMap.get("error"));
+        assertEquals(errorMessage, errorMap.get("message"));
+        assertNotNull(errorMap.get("timestamp")); // timestamp should be present
+    }
+
 
 }

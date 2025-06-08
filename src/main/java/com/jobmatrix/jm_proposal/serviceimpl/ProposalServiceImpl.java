@@ -4,6 +4,7 @@ import com.common.enums.ProposalStatus;
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
+import com.jobmatrix.jm_proposal.exception.ProposalNotFoundException;
 import com.jobmatrix.jm_proposal.repository.FreelancerRepository;
 import com.jobmatrix.jm_proposal.repository.ProposalRepository;
 import com.jobmatrix.jm_proposal.service.ProposalService;
@@ -48,4 +49,9 @@ public class ProposalServiceImpl implements ProposalService {
         return result;
     }
 
+    @Override
+    public ProposalSubmission getProposalByJobPostingId(Long jobPostingId) {
+        return proposalRepository.findByJobPostingId(jobPostingId)
+                .orElseThrow(() -> new ProposalNotFoundException("Proposal not found for job posting ID: " + jobPostingId));
+    }
 }
