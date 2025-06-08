@@ -6,20 +6,26 @@ import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/v1/proposals")
 @RequiredArgsConstructor
 public class ProposalController {
     private final ProposalService proposalService;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
 
     @PostMapping("/create_proposal")
     public ResponseEntity<ProposalSubmission> submitProposal(
@@ -29,8 +35,8 @@ public class ProposalController {
     }
 
     @GetMapping("/{jobPostingId}")
-    public ResponseEntity<ProposalSubmission> getProposalByJobPostingId(@PathVariable Long jobPostingId) {
-        ProposalSubmission proposal = proposalService.getProposalByJobPostingId(jobPostingId);
+    public ResponseEntity<ProposalSubmissionDTO> getProposalByJobPostingId(@PathVariable Long jobPostingId) {
+        ProposalSubmissionDTO proposal = proposalService.getProposalByJobPostingId(jobPostingId);
         return ResponseEntity.ok(proposal);
     }
 

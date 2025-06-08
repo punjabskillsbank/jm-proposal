@@ -13,5 +13,5 @@ public interface ProposalService {
 
     Map<ProposalStatus, List<ProposalSubmissionDTO>> getProposalsByStatus(UUID freelancerId, List<ProposalStatus> statusList);
 
-    ProposalSubmission getProposalByJobPostingId(Long jobPostingId);
+    ProposalSubmissionDTO getProposalByJobPostingId(Long jobPostingId);
 }

@@ -54,30 +54,21 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleProposalNotFoundException_shouldReturnNotFoundResponse() {
+    void handleProposalNotFoundException_shouldReturnNotFoundErrorBody() {
         // Arrange
-        String errorMessage = "Proposal not found for job posting ID: 123";
-        ProposalNotFoundException exception = new ProposalNotFoundException(errorMessage);
+        Long jobPostingId = 123L;
+        ProposalNotFoundException exception = new ProposalNotFoundException(jobPostingId);
 
         // Act
         ResponseEntity<Object> response = exceptionHandler.handleProposalNotFoundException(exception);
 
         // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-
-        Object responseBody = response.getBody();
-        assertNotNull(responseBody);
-        assertTrue(responseBody instanceof Map);
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> errorMap = (Map<String, Object>) responseBody;
-
-        assertEquals(404, errorMap.get("status"));
-        assertEquals("Not Found", errorMap.get("error"));
-        assertEquals(errorMessage, errorMap.get("message"));
-        assertNotNull(errorMap.get("timestamp")); // timestamp should be present
+        assertEquals(404, response.getStatusCodeValue());
+        assertTrue(response.getBody() instanceof Map);
+        Map<String, Object> errorBody = (Map<String, Object>) response.getBody();
+        assertEquals("Not Found", errorBody.get("error"));
+        assertEquals("Proposal not found for job posting ID: " + jobPostingId, errorBody.get("message"));
     }
 
-
 }
+

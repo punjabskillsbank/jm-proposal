@@ -71,26 +71,25 @@ class ProposalServiceImplTest {
         verify(proposalRepository).save(any(ProposalSubmission.class));
     }
     @Test
-    void getProposalByJobPostingId_Success() {
-        // Given
-        Long jobPostingId = 101L;
+    void getProposalByJobPostingId_shouldReturnProposal_whenExists() {
+        Long jobPostingId = 1L;
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
 
-        ProposalSubmission proposal = ProposalTestDataFactory.createProposalEntity(jobPostingId, freelancerId, clientId);
+        ProposalSubmission proposal = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
+        proposal.setProposalStatus(ProposalStatus.SUBMITTED);
 
         when(proposalRepository.findByJobPostingId(jobPostingId)).thenReturn(Optional.of(proposal));
 
-        // When
-        ProposalSubmission result = proposalService.getProposalByJobPostingId(jobPostingId);
+        ProposalSubmissionDTO result = proposalService.getProposalByJobPostingId(jobPostingId);
 
-        // Then
         assertNotNull(result);
         assertEquals(jobPostingId, result.getJobPostingId());
         assertEquals(freelancerId, result.getFreelancerId());
         assertEquals(clientId, result.getClientId());
+        assertEquals(ProposalStatus.SUBMITTED, result.getProposalStatus());
 
-        verify(proposalRepository, times(1)).findByJobPostingId(jobPostingId);
+        verify(proposalRepository).findByJobPostingId(jobPostingId);
     }
 
     @Test

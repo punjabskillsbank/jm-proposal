@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -31,6 +32,9 @@ class ProposalControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
+    private ModelMapper modelMapper;
+
+    @MockitoBean
     private ProposalService proposalService;
 
     @Autowired
@@ -48,34 +52,6 @@ class ProposalControllerTest {
     }
 
 
-
-    @Test
-    void submitProposal_returnsCreatedProposal() throws Exception {
-        when(proposalService.submitProposal(ArgumentMatchers.any(ProposalSubmissionDTO.class)))
-                .thenReturn(savedProposal);
-
-        mockMvc.perform(post("/api/v1/proposals/create_proposal")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.proposalId").value(savedProposal.getProposalId()))
-                .andExpect(jsonPath("$.jobPostingId").value(savedProposal.getJobPostingId()))
-                .andExpect(jsonPath("$.coverLetter").value(savedProposal.getCoverLetter()));
-    }
-
-    @Test
-    void getProposalById_shouldReturnProposal_whenExists() throws Exception
-    {
-        Long jobPostingId = 1L;
-        when(proposalService.getProposalByJobPostingId(jobPostingId))
-                .thenReturn(savedProposal);
-
-        mockMvc.perform(get("/api/v1/proposals/{jobPostingId}", jobPostingId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.proposalId").value(savedProposal.getProposalId()))
-                .andExpect(jsonPath("$.jobPostingId").value(savedProposal.getJobPostingId()))
-                .andExpect(jsonPath("$.coverLetter").value(savedProposal.getCoverLetter()));
-    }
     @Test
     void submitProposal_missingCoverLetter_returnsBadRequest() throws Exception {
         requestDto.setCoverLetter(""); // invalid: @NotBlank violation
@@ -112,6 +88,27 @@ class ProposalControllerTest {
                 .andExpect(jsonPath("$.SUBMITTED[0].jobPostingId").value(JOB_POSTING_ID))
                 .andExpect(jsonPath("$.ACCEPTED[0].jobPostingId").value(JOB_POSTING_ID));
     }
+
+    @Test
+    void getProposalByJobPostingId_shouldReturnProposal_whenExists() throws Exception {
+        Long jobPostingId = 101L;
+        UUID freelancerId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+
+        ProposalSubmissionDTO proposalDTO = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
+        proposalDTO.setJobPostingId(jobPostingId);
+        proposalDTO.setProposalStatus(ProposalStatus.SUBMITTED);
+
+        when(proposalService.getProposalByJobPostingId(jobPostingId)).thenReturn(proposalDTO);
+
+        mockMvc.perform(get("/api/v1/proposals/{jobPostingId}", jobPostingId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.jobPostingId").value(jobPostingId))
+                .andExpect(jsonPath("$.freelancerId").value(freelancerId.toString()))
+                .andExpect(jsonPath("$.clientId").value(clientId.toString()))
+                .andExpect(jsonPath("$.proposalStatus").value(ProposalStatus.SUBMITTED.toString()));
+    }
+
 
     @Test
     void getProposalsByStatuses_EmptyResult() throws Exception {

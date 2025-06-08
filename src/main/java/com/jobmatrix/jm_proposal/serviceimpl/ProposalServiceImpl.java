@@ -48,10 +48,17 @@ public class ProposalServiceImpl implements ProposalService {
         }
         return result;
     }
-
     @Override
-    public ProposalSubmission getProposalByJobPostingId(Long jobPostingId) {
-        return proposalRepository.findByJobPostingId(jobPostingId)
-                .orElseThrow(() -> new ProposalNotFoundException("Proposal not found for job posting ID: " + jobPostingId));
+    public ProposalSubmissionDTO getProposalByJobPostingId(Long jobPostingId)
+    {
+        ProposalSubmission proposal = proposalRepository.findByJobPostingId(jobPostingId)
+                .orElseThrow(() -> new ProposalNotFoundException(jobPostingId));
+
+        if (proposal.getProposalStatus() != ProposalStatus.SUBMITTED) {
+            throw new ProposalNotFoundException(jobPostingId);
+        }
+
+        return modelMapper.map(proposal, ProposalSubmissionDTO.class);
     }
+
 }

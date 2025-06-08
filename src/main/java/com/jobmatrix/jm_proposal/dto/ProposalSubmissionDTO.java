@@ -19,7 +19,7 @@ import java.util.UUID;
 public class ProposalSubmissionDTO {
 
     @NotNull(message = "Job Posting ID is required")
-    private int jobPostingId;
+    private long jobPostingId;
 
     @NotNull(message = "Freelancer ID is required")
     private UUID freelancerId;
