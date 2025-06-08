@@ -23,10 +23,6 @@ import java.util.UUID;
 public class ProposalController {
     private final ProposalService proposalService;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-
     @PostMapping("/create_proposal")
     public ResponseEntity<ProposalSubmission> submitProposal(
             @Valid @RequestBody ProposalSubmissionDTO proposalRequest) {
@@ -39,7 +35,6 @@ public class ProposalController {
         ProposalSubmissionDTO proposal = proposalService.getProposalByJobPostingId(jobPostingId);
         return ResponseEntity.ok(proposal);
     }
-
 
     @GetMapping("/{freelancerId}/statuses/{statuses}")
     public ResponseEntity<Map<ProposalStatus, List<ProposalSubmissionDTO>>> getProposalsByFreelancerId(

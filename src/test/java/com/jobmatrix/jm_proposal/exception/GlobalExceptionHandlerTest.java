@@ -2,7 +2,6 @@ package com.jobmatrix.jm_proposal.exception;
 
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -69,6 +68,5 @@ class GlobalExceptionHandlerTest {
         assertEquals("Not Found", errorBody.get("error"));
         assertEquals("Proposal not found for job posting ID: " + jobPostingId, errorBody.get("message"));
     }
-
 }
 

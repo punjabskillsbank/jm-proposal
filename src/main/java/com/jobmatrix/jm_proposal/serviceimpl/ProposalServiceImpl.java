@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 @Service
@@ -60,5 +59,4 @@ public class ProposalServiceImpl implements ProposalService {
 
         return modelMapper.map(proposal, ProposalSubmissionDTO.class);
     }
-
 }

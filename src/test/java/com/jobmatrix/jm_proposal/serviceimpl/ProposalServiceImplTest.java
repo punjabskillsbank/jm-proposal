@@ -1,6 +1,5 @@
 package com.jobmatrix.jm_proposal.serviceimpl;
 
-
 import com.common.enums.ProposalStatus;
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -210,6 +208,4 @@ class ProposalServiceImplTest {
         verify(freelancerRepository).existsById(freelancerId);
         verifyNoMoreInteractions(proposalRepository);
     }
-
-
 }
