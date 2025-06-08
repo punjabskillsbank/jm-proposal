@@ -2,7 +2,6 @@ package com.jobmatrix.jm_proposal.controller;
 
 import com.common.enums.ProposalStatus;
 import com.common.util.EnumUtils;
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
@@ -28,6 +27,13 @@ public class ProposalController {
         ProposalSubmission savedProposal = proposalService.submitProposal(proposalRequest);
         return new ResponseEntity<>(savedProposal, HttpStatus.CREATED);
     }
+
+    @GetMapping("/{jobPostingId}")
+    public ResponseEntity<ProposalSubmission> getProposalByJobPostingId(@PathVariable Long jobPostingId) {
+        ProposalSubmission proposal = proposalService.getProposalByJobPostingId(jobPostingId);
+        return ResponseEntity.ok(proposal);
+    }
+
 
     @GetMapping("/{freelancerId}/statuses/{statuses}")
     public ResponseEntity<Map<ProposalStatus, List<ProposalSubmissionDTO>>> getProposalsByFreelancerId(

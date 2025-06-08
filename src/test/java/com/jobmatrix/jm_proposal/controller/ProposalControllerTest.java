@@ -5,7 +5,6 @@ import com.common.enums.ProposalStatus;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -15,17 +14,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.http.HttpStatus;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.hamcrest.Matchers.containsString;
-
 import java.util.*;
 
 import com.jobmatrix.jm_proposal.test_utils.factory.ProposalTestDataFactory;
-import com.common.enums.ProposalStatus;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -72,6 +64,19 @@ class ProposalControllerTest {
     }
 
     @Test
+    void getProposalById_shouldReturnProposal_whenExists() throws Exception
+    {
+        Long jobPostingId = 1L;
+        when(proposalService.getProposalByJobPostingId(jobPostingId))
+                .thenReturn(savedProposal);
+
+        mockMvc.perform(get("/api/v1/proposals/{jobPostingId}", jobPostingId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.proposalId").value(savedProposal.getProposalId()))
+                .andExpect(jsonPath("$.jobPostingId").value(savedProposal.getJobPostingId()))
+                .andExpect(jsonPath("$.coverLetter").value(savedProposal.getCoverLetter()));
+    }
+    @Test
     void submitProposal_missingCoverLetter_returnsBadRequest() throws Exception {
         requestDto.setCoverLetter(""); // invalid: @NotBlank violation
 
@@ -85,14 +90,14 @@ class ProposalControllerTest {
     @Test
     void getProposalsByStatus() throws Exception {
         UUID freelancerId = UUID.randomUUID();
-        
+
         ProposalSubmissionDTO draftProposalDTO = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, freelancerId);
         ProposalSubmissionDTO openProposalDTO = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, freelancerId);
         openProposalDTO.setProposalStatus(ProposalStatus.ACCEPTED);
 
         Map<ProposalStatus, List<ProposalSubmissionDTO>> mockResult = Map.of(
-            ProposalStatus.SUBMITTED, List.of(draftProposalDTO),
-            ProposalStatus.ACCEPTED, List.of(openProposalDTO)
+                ProposalStatus.SUBMITTED, List.of(draftProposalDTO),
+                ProposalStatus.ACCEPTED, List.of(openProposalDTO)
         );
 
         when(proposalService.getProposalsByStatus(

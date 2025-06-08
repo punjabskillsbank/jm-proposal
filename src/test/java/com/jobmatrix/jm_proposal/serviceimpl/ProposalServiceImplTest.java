@@ -1,6 +1,6 @@
 package com.jobmatrix.jm_proposal.serviceimpl;
 
-import com.common.entity.Freelancer;
+
 import com.common.enums.ProposalStatus;
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
@@ -11,16 +11,11 @@ import com.jobmatrix.jm_proposal.test_utils.factory.ProposalTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,9 +70,32 @@ class ProposalServiceImplTest {
 
         verify(proposalRepository).save(any(ProposalSubmission.class));
     }
+    @Test
+    void getProposalByJobPostingId_Success() {
+        // Given
+        Long jobPostingId = 101L;
+        UUID freelancerId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+
+        ProposalSubmission proposal = ProposalTestDataFactory.createProposalEntity(jobPostingId, freelancerId, clientId);
+
+        when(proposalRepository.findByJobPostingId(jobPostingId)).thenReturn(Optional.of(proposal));
+
+        // When
+        ProposalSubmission result = proposalService.getProposalByJobPostingId(jobPostingId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(jobPostingId, result.getJobPostingId());
+        assertEquals(freelancerId, result.getFreelancerId());
+        assertEquals(clientId, result.getClientId());
+
+        verify(proposalRepository, times(1)).findByJobPostingId(jobPostingId);
+    }
 
     @Test
     void getProposalsByStatuses_Success() {
+
         // given
         UUID freelancerId = UUID.randomUUID();
         List<ProposalStatus> statuses = Arrays.asList(ProposalStatus.SUBMITTED, ProposalStatus.ACCEPTED);
@@ -188,7 +206,7 @@ class ProposalServiceImplTest {
             () -> proposalService.getProposalsByStatus(freelancerId, statuses)
         );
         
-        assertEquals("Freelancer not found with Freelancer ID: " + freelancerId, exception.getMessage());
+        assertEquals("Freelancer not found with ID: " + freelancerId, exception.getMessage());
         
         verify(freelancerRepository).existsById(freelancerId);
         verifyNoMoreInteractions(proposalRepository);
