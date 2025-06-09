@@ -101,7 +101,7 @@ class ProposalControllerTest {
                 .andExpect(jsonPath("$.ACCEPTED[0].jobPostingId").value(JOB_POSTING_ID));
     }
     @Test
-    void getProposalsByJobPostingId_shouldReturnProposals_whenExists() throws Exception {
+    void getProposalsByJobPostingId_shouldReturnSubmittedProposals_whenExists() throws Exception {
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
         Long jobPostingId = 1L;
