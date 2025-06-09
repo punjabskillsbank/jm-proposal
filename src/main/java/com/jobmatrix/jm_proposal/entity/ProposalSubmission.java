@@ -1,6 +1,5 @@
 package com.jobmatrix.jm_proposal.entity;
 
-
 import com.common.enums.ProposalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

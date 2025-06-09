@@ -4,7 +4,6 @@ import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -46,6 +45,7 @@ public class ProposalTestDataFactory {
                 .clientId(clientId)
                 .proposedBidAmount(1000)
                 .coverLetter("Test cover letter")
+                .proposalStatus(ProposalStatus.SUBMITTED)  // <-- Add this
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

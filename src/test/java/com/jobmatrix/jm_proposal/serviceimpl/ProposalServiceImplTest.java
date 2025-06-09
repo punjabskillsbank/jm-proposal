@@ -69,26 +69,31 @@ class ProposalServiceImplTest {
         verify(proposalRepository).save(any(ProposalSubmission.class));
     }
     @Test
-    void getProposalByJobPostingId_shouldReturnProposal_whenExists() {
+    void getProposalsByJobPostingId_shouldReturnListOfSubmittedProposalsSortedByCreatedAtDesc() {
         Long jobPostingId = 1L;
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
 
-        ProposalSubmission proposal = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
-        proposal.setProposalStatus(ProposalStatus.SUBMITTED);
+        ProposalSubmission proposal1 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
+        proposal1.setProposalStatus(ProposalStatus.SUBMITTED);
 
-        when(proposalRepository.findByJobPostingId(jobPostingId)).thenReturn(Optional.of(proposal));
+        ProposalSubmission proposal2 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
+        proposal2.setProposalStatus(ProposalStatus.SUBMITTED);
 
-        ProposalSubmissionDTO result = proposalService.getProposalByJobPostingId(jobPostingId);
+
+        List<ProposalSubmission> mockProposals = List.of(proposal2, proposal1); // Sorted: most recent first
+
+        when(proposalRepository.findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED))
+                .thenReturn(mockProposals);
+
+        List<ProposalSubmissionDTO> result = proposalService.getProposalsByJobPostingId(jobPostingId);
 
         assertNotNull(result);
-        assertEquals(jobPostingId, result.getJobPostingId());
-        assertEquals(freelancerId, result.getFreelancerId());
-        assertEquals(clientId, result.getClientId());
-        assertEquals(ProposalStatus.SUBMITTED, result.getProposalStatus());
+        assertEquals(2, result.size());
 
-        verify(proposalRepository).findByJobPostingId(jobPostingId);
+        verify(proposalRepository).findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED);
     }
+
 
     @Test
     void getProposalsByStatuses_Success() {

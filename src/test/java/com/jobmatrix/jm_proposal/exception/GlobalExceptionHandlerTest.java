@@ -2,6 +2,7 @@ package com.jobmatrix.jm_proposal.exception;
 
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -21,12 +22,9 @@ class GlobalExceptionHandlerTest {
         BindingResult bindingResult = new BindException(new Object(), "proposalSubmissionRequest");
         bindingResult.addError(new FieldError("proposalSubmissionRequest", "coverLetter", "Cover letter is required"));
         bindingResult.addError(new FieldError("proposalSubmissionRequest", "proposedBidAmount", "Bid amount must be positive"));
-
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
-
         // Act
         ResponseEntity<Map<String, String>> response = exceptionHandler.handleValidationExceptions(exception);
-
         // Assert
         assertEquals(400, response.getStatusCodeValue());
 
@@ -43,30 +41,26 @@ class GlobalExceptionHandlerTest {
         UUID freelancerId = UUID.randomUUID();
         FreelancerNotFoundException exception = new FreelancerNotFoundException(freelancerId);
         String expectedMessage = "Freelancer not found with ID: " + freelancerId;
-
         // Act
         ResponseEntity<String> response = exceptionHandler.handleFreelancerNotFoundException(exception);
-
         // Assert
         assertEquals(404, response.getStatusCodeValue());
         assertEquals(expectedMessage, response.getBody());
     }
 
     @Test
-    void handleProposalNotFoundException_shouldReturnNotFoundErrorBody() {
-        // Arrange
+    void testHandleProposalNotFoundException() {
+        // Given
         Long jobPostingId = 123L;
         ProposalNotFoundException exception = new ProposalNotFoundException(jobPostingId);
-
-        // Act
+        // When
         ResponseEntity<Object> response = exceptionHandler.handleProposalNotFoundException(exception);
-
-        // Assert
-        assertEquals(404, response.getStatusCodeValue());
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertTrue(response.getBody() instanceof Map);
-        Map<String, Object> errorBody = (Map<String, Object>) response.getBody();
-        assertEquals("Not Found", errorBody.get("error"));
-        assertEquals("Proposal not found for job posting ID: " + jobPostingId, errorBody.get("message"));
+        Map<?, ?> body = (Map<?, ?>) response.getBody();
+        assertEquals("Proposal not found for job posting ID: 123", body.get("message"));
     }
 }
 

@@ -6,8 +6,6 @@ import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +29,9 @@ public class ProposalController {
     }
 
     @GetMapping("/{jobPostingId}")
-    public ResponseEntity<ProposalSubmissionDTO> getProposalByJobPostingId(@PathVariable Long jobPostingId) {
-        ProposalSubmissionDTO proposal = proposalService.getProposalByJobPostingId(jobPostingId);
-        return ResponseEntity.ok(proposal);
+    public ResponseEntity<List<ProposalSubmissionDTO>> getProposalsByJobPostingId(@PathVariable Long jobPostingId) {
+        List<ProposalSubmissionDTO> proposals = proposalService.getProposalsByJobPostingId(jobPostingId);
+        return ResponseEntity.ok(proposals);
     }
 
     @GetMapping("/{freelancerId}/statuses/{statuses}")

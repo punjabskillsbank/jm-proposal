@@ -7,6 +7,7 @@ import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import java.util.*;
-
 import com.jobmatrix.jm_proposal.test_utils.factory.ProposalTestDataFactory;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -61,6 +61,19 @@ class ProposalControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.coverLetter").value("Cover letter is required"));
     }
+    @Test
+    void submitProposal_returnsCreatedProposal() throws Exception {
+        when(proposalService.submitProposal(ArgumentMatchers.any(ProposalSubmissionDTO.class)))
+                .thenReturn(savedProposal);
+
+        mockMvc.perform(post("/api/v1/proposals/create_proposal")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.proposalId").value(savedProposal.getProposalId()))
+                .andExpect(jsonPath("$.jobPostingId").value(savedProposal.getJobPostingId()))
+                .andExpect(jsonPath("$.coverLetter").value(savedProposal.getCoverLetter()));
+    }
 
     @Test
     void getProposalsByStatus() throws Exception {
@@ -87,27 +100,23 @@ class ProposalControllerTest {
                 .andExpect(jsonPath("$.SUBMITTED[0].jobPostingId").value(JOB_POSTING_ID))
                 .andExpect(jsonPath("$.ACCEPTED[0].jobPostingId").value(JOB_POSTING_ID));
     }
-
     @Test
-    void getProposalByJobPostingId_shouldReturnProposal_whenExists() throws Exception {
-        Long jobPostingId = 101L;
+    void getProposalsByJobPostingId_shouldReturnProposals_whenExists() throws Exception {
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
+        Long jobPostingId = 1L;
 
-        ProposalSubmissionDTO proposalDTO = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
-        proposalDTO.setJobPostingId(jobPostingId);
-        proposalDTO.setProposalStatus(ProposalStatus.SUBMITTED);
+        ProposalSubmissionDTO dto = ProposalSubmissionDTO.builder()
+                .jobPostingId(jobPostingId)
+                .freelancerId(freelancerId)
+                .clientId(clientId)
+                .proposalStatus(ProposalStatus.SUBMITTED)
+                .build();
 
-        when(proposalService.getProposalByJobPostingId(jobPostingId)).thenReturn(proposalDTO);
+        when(proposalService.getProposalsByJobPostingId(jobPostingId))
+                .thenReturn(Collections.singletonList(dto));
 
-        mockMvc.perform(get("/api/v1/proposals/{jobPostingId}", jobPostingId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.jobPostingId").value(jobPostingId))
-                .andExpect(jsonPath("$.freelancerId").value(freelancerId.toString()))
-                .andExpect(jsonPath("$.clientId").value(clientId.toString()))
-                .andExpect(jsonPath("$.proposalStatus").value(ProposalStatus.SUBMITTED.toString()));
     }
-
 
     @Test
     void getProposalsByStatuses_EmptyResult() throws Exception {

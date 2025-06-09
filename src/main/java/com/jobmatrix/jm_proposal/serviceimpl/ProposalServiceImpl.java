@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,15 +49,11 @@ public class ProposalServiceImpl implements ProposalService {
         return result;
     }
     @Override
-    public ProposalSubmissionDTO getProposalByJobPostingId(Long jobPostingId)
-    {
-        ProposalSubmission proposal = proposalRepository.findByJobPostingId(jobPostingId)
-                .orElseThrow(() -> new ProposalNotFoundException(jobPostingId));
-
-        if (proposal.getProposalStatus() != ProposalStatus.SUBMITTED) {
+    public List<ProposalSubmissionDTO> getProposalsByJobPostingId(Long jobPostingId) {
+        List<ProposalSubmission> proposals = proposalRepository.findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED);
+        if (proposals.isEmpty()) {
             throw new ProposalNotFoundException(jobPostingId);
         }
-
-        return modelMapper.map(proposal, ProposalSubmissionDTO.class);
+        return proposals.stream().map(proposal -> modelMapper.map(proposal, ProposalSubmissionDTO.class)).collect(Collectors.toList());
     }
 }
