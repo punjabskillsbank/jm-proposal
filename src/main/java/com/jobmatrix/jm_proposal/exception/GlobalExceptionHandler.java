@@ -38,10 +38,4 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ProposalNotFoundException.class)
-    public ResponseEntity<Object> handleProposalNotFoundException(ProposalNotFoundException ex) {
-        Map<String, Object> errorBody = new HashMap<>();
-        errorBody.put("message", ex.getMessage());
-        return new ResponseEntity<>(errorBody, HttpStatus.NOT_FOUND);
     }
-}

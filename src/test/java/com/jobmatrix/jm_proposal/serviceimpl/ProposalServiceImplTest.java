@@ -27,6 +27,7 @@ class ProposalServiceImplTest {
 
     @Mock
     private FreelancerRepository clientRepository;
+
     @Mock
     private FreelancerRepository freelancerRepository;
 

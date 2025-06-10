@@ -40,20 +40,6 @@ class GlobalExceptionHandlerTest {
         assertEquals("Cover letter is required", errorMap.get("coverLetter"));
         assertEquals("Bid amount must be positive", errorMap.get("proposedBidAmount"));
     }
-    @Test
-    void testHandleProposalNotFoundException() {
-        // Given
-        Long jobPostingId = 123L;
-        ProposalNotFoundException exception = new ProposalNotFoundException(jobPostingId);
-        // When
-        ResponseEntity<Object> response = exceptionHandler.handleProposalNotFoundException(exception);
-        // Then
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody() instanceof Map);
-        Map<?, ?> body = (Map<?, ?>) response.getBody();
-        assertEquals("Proposal not found for job posting ID: 123", body.get("message"));
-    }
 
     @Test
     void handleFreelancerNotFoundException_shouldReturnNotFoundMessage() {
