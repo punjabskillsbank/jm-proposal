@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,34 +72,38 @@ class ProposalServiceImplTest {
 
         verify(proposalRepository).save(any(ProposalSubmission.class));
     }
+
     @Test
     void getProposalsByJobPostingId_shouldReturnListOfSubmittedProposalsSortedByCreatedAtDesc() {
-        long jobPostingId = 1L;
-        UUID freelancerId = UUID.randomUUID();
-        UUID clientId = UUID.randomUUID();
+        Long jobPostingId = 1L;
+
+        UUID freelancerId1 = UUID.randomUUID();
+        UUID clientId1 = UUID.randomUUID();
+
+        UUID freelancerId2 = UUID.randomUUID();
+        UUID clientId2 = UUID.randomUUID();
 
         // 1st proposal
-        ProposalSubmission proposal1 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
+        ProposalSubmission proposal1 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId1, clientId1);
         proposal1.setProposalStatus(ProposalStatus.SUBMITTED);
-        proposal1.setCoverLetter("Proposal 1: Experienced in backend systems.");
-        proposal1.setProposedBidAmount(1000);
-        // 2nd  proposal
-        ProposalSubmission proposal2 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
+
+        // 2nd proposal
+        ProposalSubmission proposal2 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId2, clientId2);
         proposal2.setProposalStatus(ProposalStatus.SUBMITTED);
-        proposal2.setCoverLetter("Proposal 2: Expert in frontend and UX.");
-        proposal2.setProposedBidAmount(1200);
+
 
         List<ProposalSubmission> mockProposals = List.of(proposal2, proposal1);
 
-        when(proposalRepository.findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED))
-                .thenReturn(mockProposals);
-        // Execute
+        when(proposalRepository.findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(
+                jobPostingId, ProposalStatus.SUBMITTED)).thenReturn(mockProposals);
+
         List<ProposalSubmissionDTO> result = proposalService.getProposalsByJobPostingId(jobPostingId);
 
-        // Verify
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(proposalRepository).findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED);
+
+        verify(proposalRepository).findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(
+                jobPostingId, ProposalStatus.SUBMITTED);
     }
 
     @Test
