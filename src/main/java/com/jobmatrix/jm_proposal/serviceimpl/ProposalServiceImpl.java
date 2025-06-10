@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +47,14 @@ public class ProposalServiceImpl implements ProposalService {
             result.put(status, dtoList);
         }
         return result;
+    }
+    @Override
+    public List<ProposalSubmissionDTO> getProposalsByJobPostingId(Long jobPostingId) {
+        List<ProposalSubmission> proposals = proposalRepository.findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED);
+
+        return proposals.stream().map(proposal -> modelMapper
+                .map(proposal, ProposalSubmissionDTO.class))
+                .collect(Collectors.toList());
     }
 
 }
