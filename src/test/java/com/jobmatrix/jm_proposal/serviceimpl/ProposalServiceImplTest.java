@@ -13,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,29 +75,34 @@ class ProposalServiceImplTest {
     }
     @Test
     void getProposalsByJobPostingId_shouldReturnListOfSubmittedProposalsSortedByCreatedAtDesc() {
-        Long jobPostingId = 1L;
+        long jobPostingId = 1L;
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
 
+        // 1st proposal
         ProposalSubmission proposal1 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
         proposal1.setProposalStatus(ProposalStatus.SUBMITTED);
-
+        proposal1.setCoverLetter("Proposal 1: Experienced in backend systems.");
+        proposal1.setProposedBidAmount(1000);
+        // 2nd  proposal
         ProposalSubmission proposal2 = ProposalTestDataFactory.createTestProposal(jobPostingId, freelancerId, clientId);
         proposal2.setProposalStatus(ProposalStatus.SUBMITTED);
+        proposal2.setCoverLetter("Proposal 2: Expert in frontend and UX.");
+        proposal2.setProposedBidAmount(1200);
 
-
-        List<ProposalSubmission> mockProposals = List.of(proposal2, proposal1); // Sorted: most recent first
+        List<ProposalSubmission> mockProposals = List.of(proposal2, proposal1);
 
         when(proposalRepository.findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED))
                 .thenReturn(mockProposals);
-
+        // Execute
         List<ProposalSubmissionDTO> result = proposalService.getProposalsByJobPostingId(jobPostingId);
 
+        // Verify
         assertNotNull(result);
         assertEquals(2, result.size());
-
         verify(proposalRepository).findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(jobPostingId, ProposalStatus.SUBMITTED);
     }
+
     @Test
     void getProposalsByStatus_shouldThrowFreelancerNotFoundException_whenFreelancerDoesNotExist() {
         UUID invalidFreelancerId = UUID.randomUUID();
