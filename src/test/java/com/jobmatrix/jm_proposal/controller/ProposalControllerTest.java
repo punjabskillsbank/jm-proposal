@@ -10,12 +10,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.HttpStatus;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.hamcrest.Matchers.containsString;
 
@@ -39,6 +42,9 @@ class ProposalControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
+    private ModelMapper modelMapper;
+
+    @MockitoBean
     private ProposalService proposalService;
 
     @Autowired
@@ -55,20 +61,34 @@ class ProposalControllerTest {
         savedProposal = ProposalTestDataFactory.createProposalEntity(1L, freelancerId, clientId);
     }
 
+    @Test
+    void getProposalsByJobPostingId_shouldReturnSubmittedProposals_whenExists() throws Exception {
+        Long jobPostingId = 1L;
+        List<ProposalSubmissionDTO> mockProposals = Collections.singletonList(requestDto);
 
+        when(proposalService.getProposalsByJobPostingId(jobPostingId)).thenReturn(mockProposals);
+        requestDto.setJobPostingId(jobPostingId);
+        mockMvc.perform(get("/api/v1/proposals/{jobPostingId}", jobPostingId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", Matchers.hasSize(1)))
+                .andExpect(jsonPath("$[0].jobPostingId").value(jobPostingId))
+                .andExpect(jsonPath("$[0].freelancerId").value(requestDto.getFreelancerId().toString()))
+                .andExpect(jsonPath("$[0].clientId").value(requestDto.getClientId().toString()))
+                .andExpect(jsonPath("$[0].proposedBidAmount").value(requestDto.getProposedBidAmount()))
+                .andExpect(jsonPath("$[0].coverLetter").value(requestDto.getCoverLetter()))
+                .andExpect(jsonPath("$[0].proposalStatus").value(requestDto.getProposalStatus().toString()));
+    }
 
     @Test
-    void submitProposal_returnsCreatedProposal() throws Exception {
-        when(proposalService.submitProposal(ArgumentMatchers.any(ProposalSubmissionDTO.class)))
-                .thenReturn(savedProposal);
+    void getProposalsByJobPostingId_shouldReturnEmptyList_whenNoProposalsExist() throws Exception {
+        Long jobPostingId = 1L;
+        when(proposalService.getProposalsByJobPostingId(jobPostingId)).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(post("/api/v1/proposals/create_proposal")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.proposalId").value(savedProposal.getProposalId()))
-                .andExpect(jsonPath("$.jobPostingId").value(savedProposal.getJobPostingId()))
-                .andExpect(jsonPath("$.coverLetter").value(savedProposal.getCoverLetter()));
+        mockMvc.perform(get("/api/v1/proposals/{jobPostingId}", jobPostingId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", Matchers.hasSize(0)));
     }
 
     @Test
@@ -149,6 +169,4 @@ class ProposalControllerTest {
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.message").value("Invalid value 'INVALID_STATUS' for enum: ProposalStatus"));
     }
-
-
 }

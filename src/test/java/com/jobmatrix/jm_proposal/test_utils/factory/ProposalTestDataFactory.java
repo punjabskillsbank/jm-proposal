@@ -1,10 +1,10 @@
+
 package com.jobmatrix.jm_proposal.test_utils.factory;
 
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,7 +15,7 @@ public class ProposalTestDataFactory {
 
     public static ProposalSubmissionDTO createProposalSubmissionRequest(UUID freelancerId, UUID clientId) {
         return ProposalSubmissionDTO.builder()
-                .jobPostingId(JOB_POSTING_ID)
+                .jobPostingId((long) JOB_POSTING_ID)
                 .freelancerId(freelancerId)
                 .clientId(clientId)
                 .proposedBidAmount(PROPOSED_BID_AMOUNT)
@@ -46,6 +46,7 @@ public class ProposalTestDataFactory {
                 .clientId(clientId)
                 .proposedBidAmount(1000)
                 .coverLetter("Test cover letter")
+                .proposalStatus(ProposalStatus.SUBMITTED)  // <-- Add this
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

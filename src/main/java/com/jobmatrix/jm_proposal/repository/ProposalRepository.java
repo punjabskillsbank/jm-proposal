@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface ProposalRepository extends JpaRepository<ProposalSubmission, Long> {
     List<ProposalSubmission> findByFreelancerIdAndProposalStatus(UUID freelancerId, ProposalStatus proposalStatus);
+    List<ProposalSubmission> findByJobPostingIdAndProposalStatusOrderByCreatedAtDesc(Long jobPostingId, ProposalStatus proposalStatus);
 }
