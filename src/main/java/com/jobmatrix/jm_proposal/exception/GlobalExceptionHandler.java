@@ -38,4 +38,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(AnswerTooLongException.class)
+    public ResponseEntity<String> handleAnswerTooLongException(AnswerTooLongException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+}

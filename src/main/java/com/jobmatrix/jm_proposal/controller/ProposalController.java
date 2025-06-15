@@ -28,9 +28,9 @@ public class ProposalController {
     }
 
     @PostMapping("/create_proposal")
-    public ResponseEntity<ProposalSubmission> submitProposal(
+    public ResponseEntity<ProposalSubmissionDTO> submitProposal(
             @Valid @RequestBody ProposalSubmissionDTO proposalRequest) {
-        ProposalSubmission savedProposal = proposalService.submitProposal(proposalRequest);
+        ProposalSubmissionDTO savedProposal = proposalService.submitProposal(proposalRequest);
         return new ResponseEntity<>(savedProposal, HttpStatus.CREATED);
     }
 

@@ -2,8 +2,11 @@ package com.jobmatrix.jm_proposal.serviceimpl;
 
 import com.common.enums.ProposalStatus;
 import com.common.exceptionHandling.FreelancerNotFoundException;
+import com.jobmatrix.jm_proposal.dto.ProposalQuestionAnswerDTO;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
+import com.jobmatrix.jm_proposal.entity.ProposalQuestionAnswer;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
+import com.jobmatrix.jm_proposal.exception.AnswerTooLongException;
 import com.jobmatrix.jm_proposal.repository.FreelancerRepository;
 import com.jobmatrix.jm_proposal.repository.ProposalRepository;
 import com.jobmatrix.jm_proposal.service.ProposalService;
@@ -25,10 +28,46 @@ public class ProposalServiceImpl implements ProposalService {
 
     @Override
     @Transactional
-    public ProposalSubmission submitProposal(ProposalSubmissionDTO proposalRequest) {
+    public ProposalSubmissionDTO submitProposal(ProposalSubmissionDTO proposalRequest) {
         ProposalSubmission proposal = modelMapper.map(proposalRequest, ProposalSubmission.class);
         proposal.setProposalId(null);
-        return proposalRepository.save(proposal);
+        // Map answers manually and set back-reference
+        int maxWordLimit = 200;
+        List<ProposalQuestionAnswerDTO> answerDTOs = proposalRequest.getQuestionAnswers();
+        if (answerDTOs != null && !answerDTOs.isEmpty()) {
+            for (ProposalQuestionAnswerDTO dto : answerDTOs) {
+                String answerText = dto.getAnswer();
+                if (answerText != null) {
+                    int wordCount = answerText.trim().split("\\s+").length;
+                    if (wordCount > maxWordLimit) {
+                        throw new AnswerTooLongException(maxWordLimit);
+                    }
+                }
+            }
+            List<ProposalQuestionAnswer> answers = answerDTOs.stream()
+                    .map(dto -> {
+                        ProposalQuestionAnswer answer = modelMapper.map(dto, ProposalQuestionAnswer.class);
+                        answer.setAnswerId(null);
+                        answer.setProposalSubmission(proposal);
+                        return answer;
+                    }).toList();
+            proposal.setQuestionAnswers(answers);
+        }
+        ProposalSubmission savedProposal = proposalRepository.save(proposal);
+        return mapToResponseDTO(savedProposal);
+    }
+    private ProposalSubmissionDTO mapToResponseDTO(ProposalSubmission proposal) {
+        ProposalSubmissionDTO dto = modelMapper.map(proposal, ProposalSubmissionDTO.class);
+        if (proposal.getQuestionAnswers() != null) {
+            List<ProposalQuestionAnswerDTO> answerDTOs = proposal.getQuestionAnswers().stream()
+                    .map(answer -> ProposalQuestionAnswerDTO.builder()
+                            .questionId(answer.getQuestionId())
+                            .answer(answer.getAnswer())
+                            .build())
+                    .toList();
+            dto.setQuestionAnswers(answerDTOs);
+        }
+        return dto;
     }
 
     @Override

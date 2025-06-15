@@ -4,6 +4,7 @@ import com.common.enums.ProposalStatus;
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
+import com.jobmatrix.jm_proposal.exception.AnswerTooLongException;
 import com.jobmatrix.jm_proposal.repository.FreelancerRepository;
 import com.jobmatrix.jm_proposal.repository.ProposalRepository;
 import com.jobmatrix.jm_proposal.test_utils.factory.ProposalTestDataFactory;
@@ -61,9 +62,8 @@ class ProposalServiceImplTest {
         savedProposal.setProposalId(1L);
 
         when(proposalRepository.save(any(ProposalSubmission.class))).thenReturn(savedProposal);
-        ProposalSubmission result = proposalService.submitProposal(request);
+        ProposalSubmissionDTO result = proposalService.submitProposal(request);
 
-        assertEquals(1L, result.getProposalId());
         assertEquals(request.getJobPostingId(), result.getJobPostingId());
         assertEquals(request.getFreelancerId(), result.getFreelancerId());
         assertEquals(request.getClientId(), result.getClientId());
@@ -71,6 +71,40 @@ class ProposalServiceImplTest {
         assertEquals(request.getCoverLetter(), result.getCoverLetter());
 
         verify(proposalRepository).save(any(ProposalSubmission.class));
+    }
+
+    @Test
+    void submitProposal_shouldSaveProposal_WhenAnswersAreValid() {
+        UUID freelancerId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+
+        ProposalSubmissionDTO request = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
+        request.setQuestionAnswers(ProposalTestDataFactory.createValidAnswerDTOs());
+        ProposalSubmission savedProposal = ProposalTestDataFactory.createProposalEntity(1L, freelancerId, clientId);
+        when(proposalRepository.save(any(ProposalSubmission.class))).thenReturn(savedProposal);
+        ProposalSubmissionDTO result = proposalService.submitProposal(request);
+
+        assertEquals(request.getJobPostingId(), result.getJobPostingId());
+        assertEquals(request.getFreelancerId(), result.getFreelancerId());
+        assertEquals(request.getClientId(), result.getClientId());
+        assertEquals(request.getProposedBidAmount(), result.getProposedBidAmount());
+        assertEquals(request.getCoverLetter(), result.getCoverLetter());
+        verify(proposalRepository).save(any(ProposalSubmission.class));
+    }
+
+    @Test
+    void submitProposal_shouldThrowException_WhenAnswerExceedsWordLimit() {
+        UUID freelancerId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+
+        ProposalSubmissionDTO request = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
+        request.setQuestionAnswers(ProposalTestDataFactory.createInvalidAnswerDTOs());
+
+        assertThrows(AnswerTooLongException.class, () -> {
+            proposalService.submitProposal(request);
+        });
+
+        verify(proposalRepository, never()).save(any(ProposalSubmission.class));
     }
 
     @Test

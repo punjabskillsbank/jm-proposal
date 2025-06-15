@@ -56,4 +56,13 @@ class GlobalExceptionHandlerTest {
         assertEquals(expectedMessage, response.getBody());
     }
 
+    @Test
+    void handleAnswerTooLongException_shouldReturnBadRequestMessage() {
+        int wordLimit = 200;
+        AnswerTooLongException exception = new AnswerTooLongException(wordLimit);
+        String expectedMessage = "Answer exceeds " + wordLimit + " word limit.";
+        ResponseEntity<String> response = exceptionHandler.handleAnswerTooLongException(exception);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
+        assertEquals(expectedMessage, response.getBody());
+    }
 }
