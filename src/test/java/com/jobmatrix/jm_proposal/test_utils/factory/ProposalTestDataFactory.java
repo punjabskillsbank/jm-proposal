@@ -54,20 +54,34 @@ public class ProposalTestDataFactory {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
+
     public static List<ProposalQuestionAnswerDTO> createValidAnswerDTOs() {
         return List.of(
                 ProposalQuestionAnswerDTO.builder()
                         .questionId(1L)
-                        .answer("This is a valid short answer.")
+                        .answer("This is a valid short answer to question 1.")
+                        .build(),
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(2L)
+                        .answer("This is a valid short answer to question 2.")
+                        .build(),
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(3L)
+                        .answer("Another valid answer.")
                         .build()
         );
     }
+
     public static List<ProposalQuestionAnswerDTO> createInvalidAnswerDTOs() {
         String longAnswer = String.join(" ", Collections.nCopies(201, "word"));
         return List.of(
                 ProposalQuestionAnswerDTO.builder()
                         .questionId(1L)
-                        .answer(longAnswer)
+                        .answer(longAnswer) // Too long
+                        .build(),
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(2L)
+                        .answer("") // Empty answer
                         .build()
         );
     }
