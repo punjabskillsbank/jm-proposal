@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import com.common.entity.JobPostingQuestion;
 
 @Data
 @Builder(toBuilder = true)
@@ -22,8 +23,9 @@ public class ProposalQuestionAnswer {
     @JoinColumn(name = "proposal_id", nullable = false)
     private ProposalSubmission proposalSubmission;
 
-    @Column(name = "question_id", nullable = false)
-    private Long questionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", nullable = false)
+    private JobPostingQuestion jobPostingQuestion;
 
     @Column(name = "answer", nullable = false, columnDefinition = "TEXT")
     private String answer;

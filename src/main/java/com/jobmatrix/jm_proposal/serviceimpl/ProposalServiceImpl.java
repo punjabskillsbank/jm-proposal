@@ -1,5 +1,6 @@
 package com.jobmatrix.jm_proposal.serviceimpl;
 
+import com.common.entity.JobPostingQuestion;
 import com.common.enums.ProposalStatus;
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.dto.ProposalQuestionAnswerDTO;
@@ -38,8 +39,8 @@ public class ProposalServiceImpl implements ProposalService {
             for (ProposalQuestionAnswerDTO dto : answerDTOs) {
                 String answerText = dto.getAnswer();
                 if (answerText != null) {
-                    int wordCount = answerText.trim().length();
-                    if (wordCount > maxCharLimit) {
+                    int charCount = answerText.trim().length();
+                    if (charCount > maxCharLimit) {
                         throw new AnswerTooLongException(maxCharLimit);
                     }
                 }
@@ -49,6 +50,9 @@ public class ProposalServiceImpl implements ProposalService {
                         ProposalQuestionAnswer answer = modelMapper.map(dto, ProposalQuestionAnswer.class);
                         answer.setAnswerId(null);
                         answer.setProposalSubmission(proposal);
+                        JobPostingQuestion jobPostingQuestion = new JobPostingQuestion();
+                        jobPostingQuestion.setQuestionId(dto.getQuestionId());
+                        answer.setJobPostingQuestion(jobPostingQuestion);
                         return answer;
                     }).toList();
             proposal.setQuestionAnswers(answers);
@@ -61,7 +65,7 @@ public class ProposalServiceImpl implements ProposalService {
         if (proposal.getQuestionAnswers() != null) {
             List<ProposalQuestionAnswerDTO> answerDTOs = proposal.getQuestionAnswers().stream()
                     .map(answer -> ProposalQuestionAnswerDTO.builder()
-                            .questionId(answer.getQuestionId())
+                            .questionId(answer.getJobPostingQuestion().getQuestionId())
                             .answer(answer.getAnswer())
                             .build())
                     .toList();
