@@ -57,7 +57,7 @@ public class ProposalSubmission {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "proposalSubmission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "proposalSubmission", orphanRemoval = true)
     private List<ProposalQuestionAnswer> questionAnswers;
 
 }

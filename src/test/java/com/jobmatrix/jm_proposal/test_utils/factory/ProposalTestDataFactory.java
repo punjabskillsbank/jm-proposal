@@ -73,7 +73,7 @@ public class ProposalTestDataFactory {
     }
 
     public static List<ProposalQuestionAnswerDTO> createInvalidAnswerDTOs() {
-        String longAnswer = String.join(" ", Collections.nCopies(201, "word"));
+        String longAnswer = "a".repeat(5001);
         return List.of(
                 ProposalQuestionAnswerDTO.builder()
                         .questionId(1L)

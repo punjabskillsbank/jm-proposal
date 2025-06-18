@@ -26,21 +26,21 @@ public class ProposalServiceImpl implements ProposalService {
     private final FreelancerRepository freelancerRepository;
     private final ModelMapper modelMapper;
 
+    private static final int maxCharLimit = 5000;
     @Override
     @Transactional
     public ProposalSubmissionDTO submitProposal(ProposalSubmissionDTO proposalRequest) {
         ProposalSubmission proposal = modelMapper.map(proposalRequest, ProposalSubmission.class);
         proposal.setProposalId(null);
         // Map answers manually and set back-reference
-        int maxWordLimit = 200;
         List<ProposalQuestionAnswerDTO> answerDTOs = proposalRequest.getQuestionAnswers();
         if (answerDTOs != null && !answerDTOs.isEmpty()) {
             for (ProposalQuestionAnswerDTO dto : answerDTOs) {
                 String answerText = dto.getAnswer();
                 if (answerText != null) {
-                    int wordCount = answerText.trim().split("\\s+").length;
-                    if (wordCount > maxWordLimit) {
-                        throw new AnswerTooLongException(maxWordLimit);
+                    int wordCount = answerText.trim().length();
+                    if (wordCount > maxCharLimit) {
+                        throw new AnswerTooLongException(maxCharLimit);
                     }
                 }
             }
