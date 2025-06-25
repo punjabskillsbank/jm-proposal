@@ -27,7 +27,7 @@ public class ProposalServiceImpl implements ProposalService {
     private final FreelancerRepository freelancerRepository;
     private final ModelMapper modelMapper;
 
-    private static final int maxCharLimit = 5000;
+    private static final int MAX_CHAR_LIMIT = 5000;
     @Override
     @Transactional
     public ProposalSubmissionDTO submitProposal(ProposalSubmissionDTO proposalRequest) {
@@ -37,13 +37,7 @@ public class ProposalServiceImpl implements ProposalService {
         List<ProposalQuestionAnswerDTO> answerDTOs = proposalRequest.getQuestionAnswers();
         if (answerDTOs != null && !answerDTOs.isEmpty()) {
             for (ProposalQuestionAnswerDTO dto : answerDTOs) {
-                String answerText = dto.getAnswer();
-                if (answerText != null) {
-                    int charCount = answerText.trim().length();
-                    if (charCount > maxCharLimit) {
-                        throw new AnswerTooLongException(maxCharLimit);
-                    }
-                }
+                validateAnswerLength(dto.getAnswer());
             }
             List<ProposalQuestionAnswer> answers = answerDTOs.stream()
                     .map(dto -> {
@@ -72,6 +66,14 @@ public class ProposalServiceImpl implements ProposalService {
             dto.setQuestionAnswers(answerDTOs);
         }
         return dto;
+    }
+    private void validateAnswerLength(String answer) {
+        if (answer != null) {
+            int charCount = answer.trim().length();
+            if (charCount > MAX_CHAR_LIMIT) {
+                throw new AnswerTooLongException(MAX_CHAR_LIMIT);
+            }
+        }
     }
 
     @Override
