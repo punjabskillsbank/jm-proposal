@@ -12,6 +12,7 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
@@ -56,5 +57,7 @@ public class ProposalSubmission {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "proposalSubmission", orphanRemoval = true)
+    private List<ProposalQuestionAnswer> questionAnswers;
 
 }

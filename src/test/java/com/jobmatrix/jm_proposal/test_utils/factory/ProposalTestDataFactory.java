@@ -1,11 +1,14 @@
 
 package com.jobmatrix.jm_proposal.test_utils.factory;
 
+import com.jobmatrix.jm_proposal.dto.ProposalQuestionAnswerDTO;
 import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
 import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class ProposalTestDataFactory {
@@ -50,5 +53,36 @@ public class ProposalTestDataFactory {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+    }
+
+    public static List<ProposalQuestionAnswerDTO> createValidAnswerDTOs() {
+        return List.of(
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(1L)
+                        .answer("This is a valid short answer to question 1.")
+                        .build(),
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(2L)
+                        .answer("This is a valid short answer to question 2.")
+                        .build(),
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(3L)
+                        .answer("Another valid answer.")
+                        .build()
+        );
+    }
+
+    public static List<ProposalQuestionAnswerDTO> createInvalidAnswerDTOs() {
+        String longAnswer = "a".repeat(5001);
+        return List.of(
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(1L)
+                        .answer(longAnswer) // Too long
+                        .build(),
+                ProposalQuestionAnswerDTO.builder()
+                        .questionId(2L)
+                        .answer("") // Empty answer
+                        .build()
+        );
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface ProposalService {
-    ProposalSubmission submitProposal(ProposalSubmissionDTO proposalRequest);
+    ProposalSubmissionDTO submitProposal(ProposalSubmissionDTO proposalRequest);
 
     Map<ProposalStatus, List<ProposalSubmissionDTO>> getProposalsByStatus(UUID freelancerId, List<ProposalStatus> statusList);
     List<ProposalSubmissionDTO> getProposalsByJobPostingId(Long jobPostingId);
