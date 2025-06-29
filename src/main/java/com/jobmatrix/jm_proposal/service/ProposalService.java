@@ -1,8 +1,10 @@
 package com.jobmatrix.jm_proposal.service;
 
+import com.common.dto.ProposalSubmissionDTO;
+import com.common.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
-import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
+
+
 
 import java.util.List;
 import java.util.Map;

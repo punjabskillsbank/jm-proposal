@@ -1,8 +1,9 @@
 
 package com.jobmatrix.jm_proposal.test_utils.factory;
 
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
-import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
+
+import com.common.dto.ProposalSubmissionDTO;
+import com.common.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
 
 import java.time.LocalDateTime;

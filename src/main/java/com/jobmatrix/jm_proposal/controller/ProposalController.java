@@ -1,9 +1,9 @@
 package com.jobmatrix.jm_proposal.controller;
 
+import com.common.dto.ProposalSubmissionDTO;
+import com.common.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
 import com.common.util.EnumUtils;
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
-import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.service.ProposalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
