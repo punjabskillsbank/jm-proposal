@@ -1,7 +1,7 @@
 package com.jobmatrix.jm_proposal.repository;
 
+import com.common.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
-import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

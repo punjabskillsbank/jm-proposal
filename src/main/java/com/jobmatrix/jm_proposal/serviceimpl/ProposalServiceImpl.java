@@ -1,12 +1,12 @@
 package com.jobmatrix.jm_proposal.serviceimpl;
 
+import com.common.dto.ProposalQuestionAnswerDTO;
+import com.common.dto.ProposalSubmissionDTO;
 import com.common.entity.JobPostingQuestion;
+import com.common.entity.ProposalQuestionAnswer;
+import com.common.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
 import com.common.exceptionHandling.FreelancerNotFoundException;
-import com.jobmatrix.jm_proposal.dto.ProposalQuestionAnswerDTO;
-import com.jobmatrix.jm_proposal.dto.ProposalSubmissionDTO;
-import com.jobmatrix.jm_proposal.entity.ProposalQuestionAnswer;
-import com.jobmatrix.jm_proposal.entity.ProposalSubmission;
 import com.jobmatrix.jm_proposal.exception.AnswerTooLongException;
 import com.jobmatrix.jm_proposal.repository.FreelancerRepository;
 import com.jobmatrix.jm_proposal.repository.ProposalRepository;
