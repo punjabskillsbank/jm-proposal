@@ -3,8 +3,10 @@ package com.jobmatrix.jm_proposal;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
+@Import({com.common.config.CorsConfig.class})
 @EntityScan(basePackages = {"com.common.entity", "com.jobmatrix.entity", "com.jobmatrix.jm_proposal.entity"})
 public class JmProposalApplication {
 
