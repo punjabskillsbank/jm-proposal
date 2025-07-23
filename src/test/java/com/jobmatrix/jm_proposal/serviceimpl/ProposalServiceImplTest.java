@@ -37,12 +37,15 @@ class ProposalServiceImplTest {
 
     private ProposalServiceImpl proposalService;
 
+    @Mock
+    private ProposalEventPublisher proposalEventPublisher;
+
     @BeforeEach
     void setUp() {
         UUID freelancerId = UUID.randomUUID();
         UUID clientId = UUID.randomUUID();
 
-        proposalService = new ProposalServiceImpl(proposalRepository, freelancerRepository, modelMapper);
+        proposalService = new ProposalServiceImpl(proposalRepository, freelancerRepository, modelMapper, proposalEventPublisher);
 
         ProposalSubmissionDTO requestDto = ProposalTestDataFactory.createProposalSubmissionRequest(freelancerId, clientId);
         ProposalSubmission savedProposal = ProposalTestDataFactory.createProposalEntity(1L, freelancerId, clientId);
