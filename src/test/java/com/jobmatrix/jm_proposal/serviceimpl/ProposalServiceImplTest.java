@@ -3,6 +3,7 @@ package com.jobmatrix.jm_proposal.serviceimpl;
 import com.common.dto.ProposalSubmissionDTO;
 import com.common.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
+import com.common.event.ProposalSubmittedEvent;
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.exception.AnswerTooLongException;
 import com.jobmatrix.jm_proposal.repository.FreelancerRepository;
@@ -14,9 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -70,9 +69,10 @@ class ProposalServiceImplTest {
         assertEquals(request.getJobPostingId(), result.getJobPostingId());
         assertEquals(request.getFreelancerId(), result.getFreelancerId());
         assertEquals(request.getClientId(), result.getClientId());
-        assertEquals(1000, request.getProposedBidAmount());
+        assertEquals(request.getProposedBidAmount(), result.getProposedBidAmount());
         assertEquals(request.getCoverLetter(), result.getCoverLetter());
 
+        verify(proposalEventPublisher).publish(any(ProposalSubmittedEvent.class));
         verify(proposalRepository).save(any(ProposalSubmission.class));
     }
 
@@ -92,6 +92,8 @@ class ProposalServiceImplTest {
         assertEquals(request.getClientId(), result.getClientId());
         assertEquals(request.getProposedBidAmount(), result.getProposedBidAmount());
         assertEquals(request.getCoverLetter(), result.getCoverLetter());
+
+        verify(proposalEventPublisher).publish(any(ProposalSubmittedEvent.class));
         verify(proposalRepository).save(any(ProposalSubmission.class));
     }
 
@@ -107,6 +109,7 @@ class ProposalServiceImplTest {
             proposalService.submitProposal(request);
         });
 
+        verify(proposalEventPublisher, never()).publish(any(ProposalSubmittedEvent.class));
         verify(proposalRepository, never()).save(any(ProposalSubmission.class));
     }
 

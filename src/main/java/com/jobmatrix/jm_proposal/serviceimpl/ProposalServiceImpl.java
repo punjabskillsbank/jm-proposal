@@ -54,19 +54,20 @@ public class ProposalServiceImpl implements ProposalService {
             proposal.setQuestionAnswers(answers);
         }
 
-        ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
-                .proposalId(proposal.getProposalId())
-                .jobPostingId(proposal.getJobPostingId())
-                .clientId(proposal.getClientId())
-                .freelancerId(proposal.getFreelancerId())
-                .build();
-
-
         ProposalSubmission savedProposal = proposalRepository.save(proposal);
+
+        // Publish the event after saving the proposal
+        ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
+                .proposalId(savedProposal.getProposalId())
+                .jobPostingId(savedProposal.getJobPostingId())
+                .clientId(savedProposal.getClientId())
+                .freelancerId(savedProposal.getFreelancerId())
+                .build();
         proposalEventPublisher.publish(event);
 
         return mapToResponseDTO(savedProposal);
     }
+
     private ProposalSubmissionDTO mapToResponseDTO(ProposalSubmission proposal) {
         ProposalSubmissionDTO dto = modelMapper.map(proposal, ProposalSubmissionDTO.class);
         if (proposal.getQuestionAnswers() != null) {
