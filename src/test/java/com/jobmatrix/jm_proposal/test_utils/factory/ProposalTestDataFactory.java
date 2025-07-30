@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class ProposalTestDataFactory {
-    private static final long JOB_POSTING_ID = 101L;
+    private static final Long JOB_POSTING_ID = 101L;
     private static final int PROPOSED_BID_AMOUNT = 5000;
     private static final String COVER_LETTER = "Please consider my proposal for this job. I have relevant experience.";
 
     public static ProposalSubmissionDTO createProposalSubmissionRequest(UUID freelancerId, UUID clientId) {
         return ProposalSubmissionDTO.builder()
-                .jobPostingId((long) JOB_POSTING_ID)
+                .jobPostingId( JOB_POSTING_ID)
                 .freelancerId(freelancerId)
                 .clientId(clientId)
                 .proposedBidAmount(PROPOSED_BID_AMOUNT)
@@ -43,7 +43,7 @@ public class ProposalTestDataFactory {
     public static ProposalSubmission createTestProposal(Long id, UUID freelancerId, UUID clientId) {
         return ProposalSubmission.builder()
                 .proposalId(id)
-                .jobPostingId(1)
+                .jobPostingId(1L)
                 .freelancerId(freelancerId)
                 .clientId(clientId)
                 .proposedBidAmount(1000)
