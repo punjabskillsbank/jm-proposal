@@ -6,6 +6,7 @@ import com.common.entity.JobPostingQuestion;
 import com.common.entity.ProposalQuestionAnswer;
 import com.common.entity.ProposalSubmission;
 import com.common.enums.ProposalStatus;
+import com.common.event.ProposalSubmittedEvent;
 import com.common.exceptionHandling.FreelancerNotFoundException;
 import com.jobmatrix.jm_proposal.exception.AnswerTooLongException;
 import com.jobmatrix.jm_proposal.repository.FreelancerRepository;
@@ -26,6 +27,7 @@ public class ProposalServiceImpl implements ProposalService {
     private final ProposalRepository proposalRepository;
     private final FreelancerRepository freelancerRepository;
     private final ModelMapper modelMapper;
+    private final ProposalEventPublisher proposalEventPublisher;
 
     private static final int MAX_CHAR_LIMIT = 5000;
     @Override
@@ -51,9 +53,21 @@ public class ProposalServiceImpl implements ProposalService {
                     }).toList();
             proposal.setQuestionAnswers(answers);
         }
+
         ProposalSubmission savedProposal = proposalRepository.save(proposal);
+
+        // Publish the event after saving the proposal
+        ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
+                .proposalId(savedProposal.getProposalId())
+                .jobPostingId(savedProposal.getJobPostingId())
+                .clientId(savedProposal.getClientId())
+                .freelancerId(savedProposal.getFreelancerId())
+                .build();
+        proposalEventPublisher.publish(event);
+
         return mapToResponseDTO(savedProposal);
     }
+
     private ProposalSubmissionDTO mapToResponseDTO(ProposalSubmission proposal) {
         ProposalSubmissionDTO dto = modelMapper.map(proposal, ProposalSubmissionDTO.class);
         if (proposal.getQuestionAnswers() != null) {
