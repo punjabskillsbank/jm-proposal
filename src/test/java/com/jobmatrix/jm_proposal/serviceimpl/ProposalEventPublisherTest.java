@@ -32,7 +32,7 @@ class ProposalEventPublisherTest {
         // Given
         ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
                 .proposalId(1L)
-                .jobPostingId(123)
+                .jobPostingId(123L)
                 .clientId(UUID.randomUUID())
                 .freelancerId(UUID.randomUUID())
                 .build();

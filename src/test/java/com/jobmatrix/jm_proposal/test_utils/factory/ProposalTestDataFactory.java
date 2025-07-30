@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class ProposalTestDataFactory {
-    private static final int JOB_POSTING_ID = 101;
+    private static final long JOB_POSTING_ID = 101L;
     private static final int PROPOSED_BID_AMOUNT = 5000;
     private static final String COVER_LETTER = "Please consider my proposal for this job. I have relevant experience.";
 
