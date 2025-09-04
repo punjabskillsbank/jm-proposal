@@ -28,10 +28,6 @@ import java.util.UUID;
 public class ProposalController {
     private final ProposalService proposalService;
     private final S3FileUtil fileService;
-    
-
-    @Value("${aws.s3.bucket-name}")
-    private String bucketName;
 
 
     @GetMapping("/{jobPostingId}")
@@ -64,7 +60,6 @@ public class ProposalController {
     public ResponseEntity<List<PresignedUrlResponseDTO>> generateUploadUrlsForJobAttachments(
             @Valid @RequestBody PresignedUrlRequestDTO request) {
         List<PresignedUrlResponseDTO> responses = fileService.generateMultipleJobAttachmentUrls(
-                bucketName,
                 request.getProposal_id(),
                 request.getFile()
         );
