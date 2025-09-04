@@ -40,41 +40,62 @@ public class ProposalServiceImpl implements ProposalService {
     public ProposalSubmissionResponseDTO submitProposal(ProposalSubmissionDTO proposalDTO) {
         ProposalSubmission proposal = modelMapper.map(proposalDTO, ProposalSubmission.class);
         proposal.setProposalId(null);
+        
         // Map answers manually and set back-reference
         List<ProposalQuestionAnswerDTO> answerDTOs = proposalDTO.getQuestionAnswers();
         if (answerDTOs != null && !answerDTOs.isEmpty()) {
             for (ProposalQuestionAnswerDTO dto : answerDTOs) {
                 validateAnswerLength(dto.getAnswer());
             }
-            List<ProposalQuestionAnswer> answers = answerDTOs.stream()
-                    .map(dto -> {
-                        ProposalQuestionAnswer answer = modelMapper.map(dto, ProposalQuestionAnswer.class);
-                        answer.setAnswerId(null);
-                        answer.setProposalSubmission(proposal);
-                        JobPostingQuestion jobPostingQuestion = new JobPostingQuestion();
-                        jobPostingQuestion.setQuestionId(dto.getQuestionId());
-                        answer.setJobPostingQuestion(jobPostingQuestion);
-                        return answer;
-                    }).toList();
+            List<ProposalQuestionAnswer> answers = new ArrayList<>();
+            for (ProposalQuestionAnswerDTO dto : answerDTOs) {
+                ProposalQuestionAnswer answer = new ProposalQuestionAnswer();
+                answer.setAnswer(dto.getAnswer());
+                answer.setProposalSubmission(proposal);
+                
+                // Set the question reference with just the ID
+                JobPostingQuestion question = new JobPostingQuestion();
+                question.setQuestionId(dto.getQuestionId());
+                answer.setJobPostingQuestion(question);
+                
+                answers.add(answer);
+            }
             proposal.setQuestionAnswers(answers);
         }
 
-        // Map attachment URLs to ProposalAttachment entities
+        // Save the proposal first to get an ID
+        ProposalSubmission savedProposal = proposalRepository.save(proposal);
+
+        // Handle attachments using the centralized method
         List<String> attachmentUrls = proposalDTO.getAttachmentUrls();
         if (attachmentUrls != null && !attachmentUrls.isEmpty()) {
             log.info("Received {} attachment(s) in proposal submission", attachmentUrls.size());
-            List<ProposalAttachment> attachments = attachmentUrls.stream()
-                    .map(url -> {
-                        ProposalAttachment attachment = new ProposalAttachment();
-                        attachment.setProposal_attachment_s3_key(url);
-                        attachment.setProposalSubmission(proposal);
-                        return attachment;
+            saveProposalAttachments(savedProposal.getProposalId(), attachmentUrls);
+            // Get the updated proposal with attachments
+            return proposalRepository.findById(savedProposal.getProposalId())
+                    .map(updatedProposal -> {
+                        // Publish the event after saving the proposal
+                        ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
+                                .proposalId(updatedProposal.getProposalId())
+                                .jobPostingId(updatedProposal.getJobPostingId())
+                                .clientId(updatedProposal.getClientId())
+                                .freelancerId(updatedProposal.getFreelancerId())
+                                .build();
+                        proposalEventPublisher.publish(event);
+                        return mapToResponseDTO(updatedProposal);
                     })
-                    .collect(Collectors.toList());
-            proposal.setProposalAttachments(attachments);
+                    .orElseGet(() -> {
+                        // If we can't find the updated proposal, use the original one
+                        ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
+                                .proposalId(savedProposal.getProposalId())
+                                .jobPostingId(savedProposal.getJobPostingId())
+                                .clientId(savedProposal.getClientId())
+                                .freelancerId(savedProposal.getFreelancerId())
+                                .build();
+                        proposalEventPublisher.publish(event);
+                        return mapToResponseDTO(savedProposal);
+                    });
         }
-
-        ProposalSubmission savedProposal = proposalRepository.save(proposal);
 
         // Publish the event after saving the proposal
         ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
@@ -146,30 +167,33 @@ public class ProposalServiceImpl implements ProposalService {
 
 
     @Override
-    public void saveProposalAttachments(Long proposalId, List<String> s3Keys) {
+    @Transactional
+    public void saveProposalAttachments(Long proposalId, List<String> ProposalAttachmentS3Keys) {
+        if (ProposalAttachmentS3Keys == null || ProposalAttachmentS3Keys.isEmpty()) {
+            return;
+        }
+
         ProposalSubmission proposal = proposalRepository.findById(proposalId)
                 .orElseThrow(() -> new ProposalNotFoundException(proposalId));
 
-        if (s3Keys != null && !s3Keys.isEmpty()) {
-            log.info("Received {} attachment(s) for proposalId {}", s3Keys.size(), proposalId);
-            
-            List<ProposalAttachment> attachments = s3Keys.stream()
-                    .map(s3Key -> {
-                        ProposalAttachment attachment = new ProposalAttachment();
-                        attachment.setProposal_attachment_s3_key(s3Key);
-                        attachment.setProposalSubmission(proposal);
-                        return attachment;
-                    })
-                    .collect(Collectors.toList());
-            
-            if (proposal.getProposalAttachments() == null) {
-                proposal.setProposalAttachments(attachments);
-            } else {
-                proposal.getProposalAttachments().addAll(attachments);
-            }
-            
-            proposalRepository.save(proposal);
+        log.info("Processing {} attachment(s) for proposalId {}", ProposalAttachmentS3Keys.size(), proposalId);
+
+        List<ProposalAttachment> attachments = ProposalAttachmentS3Keys.stream()
+                .map(s3Key -> {
+                    ProposalAttachment attachment = new ProposalAttachment();
+                    attachment.setProposal_attachment_s3_key(s3Key);
+                    attachment.setProposalSubmission(proposal);
+                    return attachment;
+                })
+                .collect(Collectors.toList());
+        
+        if (proposal.getProposalAttachments() == null) {
+            proposal.setProposalAttachments(attachments);
+        } else {
+            proposal.getProposalAttachments().addAll(attachments);
         }
+        
+        proposalRepository.save(proposal);
     }
 
 }

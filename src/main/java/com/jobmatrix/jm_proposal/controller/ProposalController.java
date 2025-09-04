@@ -1,13 +1,17 @@
 package com.jobmatrix.jm_proposal.controller;
 
+import com.common.dto.AttachmentUpdateDTO;
+import com.common.dto.PresignedUrlResponseDTO;
 import com.common.dto.ProposalSubmissionDTO;
 import com.common.dto.ProposalSubmissionResponseDTO;
 import com.common.enums.ProposalStatus;
 import com.common.util.EnumUtils;
-import com.jobmatrix.jm_proposal.dto.ProposalAttachmentUpdateDTO;
+import com.common.util.S3FileUtil;
+import com.jobmatrix.jm_proposal.dto.PresignedUrlRequestDTO;
 import com.jobmatrix.jm_proposal.service.ProposalService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +27,12 @@ import java.util.UUID;
 @Slf4j
 public class ProposalController {
     private final ProposalService proposalService;
+    private final S3FileUtil fileService;
+    
+
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
+
 
     @GetMapping("/{jobPostingId}")
     public ResponseEntity<List<ProposalSubmissionResponseDTO>> getProposalsByJobPostingId(@PathVariable Long jobPostingId) {
@@ -50,10 +60,21 @@ public class ProposalController {
         return ResponseEntity.ok(proposals);
     }
 
+    @PostMapping("/upload/proposal_attachment")
+    public ResponseEntity<List<PresignedUrlResponseDTO>> generateUploadUrlsForJobAttachments(
+            @Valid @RequestBody PresignedUrlRequestDTO request) {
+        List<PresignedUrlResponseDTO> responses = fileService.generateMultipleJobAttachmentUrls(
+                bucketName,
+                request.getProposal_id(),
+                request.getFile()
+        );
+        return ResponseEntity.ok(responses);
+    }
+
     @PostMapping("/{proposalId}/attachments")
     public ResponseEntity<Void> addAttachmentsToJobPosting(
             @PathVariable Long proposalId,
-            @RequestBody ProposalAttachmentUpdateDTO dto
+            @RequestBody AttachmentUpdateDTO dto
     ) {
         log.info("addAttachmentsToJobPosting called for proposalId {}. Attachments present? {} count={}",
                 proposalId,
