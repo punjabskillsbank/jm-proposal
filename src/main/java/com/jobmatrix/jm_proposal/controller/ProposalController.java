@@ -40,8 +40,8 @@ public class ProposalController {
     public ResponseEntity<ProposalSubmissionResponseDTO> submitProposal(
             @Valid @RequestBody ProposalSubmissionDTO proposalRequest) {
         log.info("submitProposal called. Attachments present? {} count={} ",
-                proposalRequest.getAttachmentUrls() != null && !proposalRequest.getAttachmentUrls().isEmpty(),
-                proposalRequest.getAttachmentUrls() == null ? 0 : proposalRequest.getAttachmentUrls().size());
+                proposalRequest.getAttachment_s3_key() != null && !proposalRequest.getAttachment_s3_key().isEmpty(),
+                proposalRequest.getAttachment_s3_key() == null ? 0 : proposalRequest.getAttachment_s3_key().size());
         ProposalSubmissionResponseDTO response = proposalService.submitProposal(proposalRequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

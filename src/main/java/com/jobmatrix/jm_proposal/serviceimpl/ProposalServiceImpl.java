@@ -66,37 +66,6 @@ public class ProposalServiceImpl implements ProposalService {
         // Save the proposal first to get an ID
         ProposalSubmission savedProposal = proposalRepository.save(proposal);
 
-        // Handle attachments using the centralized method
-        List<String> attachmentUrls = proposalDTO.getAttachmentUrls();
-        if (attachmentUrls != null && !attachmentUrls.isEmpty()) {
-            log.info("Received {} attachment(s) in proposal submission", attachmentUrls.size());
-            saveProposalAttachments(savedProposal.getProposalId(), attachmentUrls);
-            // Get the updated proposal with attachments
-            return proposalRepository.findById(savedProposal.getProposalId())
-                    .map(updatedProposal -> {
-                        // Publish the event after saving the proposal
-                        ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
-                                .proposalId(updatedProposal.getProposalId())
-                                .jobPostingId(updatedProposal.getJobPostingId())
-                                .clientId(updatedProposal.getClientId())
-                                .freelancerId(updatedProposal.getFreelancerId())
-                                .build();
-                        proposalEventPublisher.publish(event);
-                        return mapToResponseDTO(updatedProposal);
-                    })
-                    .orElseGet(() -> {
-                        // If we can't find the updated proposal, use the original one
-                        ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
-                                .proposalId(savedProposal.getProposalId())
-                                .jobPostingId(savedProposal.getJobPostingId())
-                                .clientId(savedProposal.getClientId())
-                                .freelancerId(savedProposal.getFreelancerId())
-                                .build();
-                        proposalEventPublisher.publish(event);
-                        return mapToResponseDTO(savedProposal);
-                    });
-        }
-
         // Publish the event after saving the proposal
         ProposalSubmittedEvent event = ProposalSubmittedEvent.builder()
                 .proposalId(savedProposal.getProposalId())
@@ -122,14 +91,7 @@ public class ProposalServiceImpl implements ProposalService {
                     .toList();
             response.setQuestionAnswers(answerDTOs);
         }
-        
-        if (proposal.getProposalAttachments() != null) {
-            List<String> attachmentUrls = proposal.getProposalAttachments().stream()
-                    .map(ProposalAttachment::getProposal_attachment_s3_key)
-                    .toList();
-            response.setAttachmentUrls(attachmentUrls);
-        }
-        
+
         return response;
     }
     private void validateAnswerLength(String answer) {
